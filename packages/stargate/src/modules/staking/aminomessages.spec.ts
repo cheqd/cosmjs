@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { encodeBech32Pubkey } from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
 import { coin } from "@cosmjs/proto-signing";
+import { PubKey as CosmosCryptoSecp256k1Pubkey } from "cosmjs-types/cosmos/crypto/secp256k1/keys";
 import {
   MsgBeginRedelegate,
   MsgCreateValidator,
@@ -18,9 +18,21 @@ import {
   AminoMsgEditValidator,
   AminoMsgUndelegate,
   createStakingAminoConverters,
+  protoDecimalToJson,
 } from "./aminomessages";
 
 describe("AminoTypes", () => {
+  describe("protoDecimalToJson", () => {
+    it("works", () => {
+      expect(protoDecimalToJson("0")).toEqual("0.000000000000000000");
+      expect(protoDecimalToJson("1")).toEqual("0.000000000000000001");
+      expect(protoDecimalToJson("2497")).toEqual("0.000000000000002497");
+      expect(protoDecimalToJson("987000000000000000")).toEqual("0.987000000000000000");
+      expect(protoDecimalToJson("123987000000000000000")).toEqual("123.987000000000000000");
+      expect(protoDecimalToJson("4872000000000000000000")).toEqual("4872.000000000000000000");
+    });
+  });
+
   describe("toAmino", () => {
     it("works for MsgBeginRedelegate", () => {
       const msg: MsgBeginRedelegate = {
@@ -29,7 +41,7 @@ describe("AminoTypes", () => {
         validatorDstAddress: "cosmos1xy4yqngt0nlkdcenxymg8tenrghmek4nmqm28k",
         amount: coin(1234, "ucosm"),
       };
-      const aminoTypes = new AminoTypes(createStakingAminoConverters("cosmos"));
+      const aminoTypes = new AminoTypes(createStakingAminoConverters());
       const aminoMsg = aminoTypes.toAmino({
         typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
         value: msg,
@@ -56,20 +68,26 @@ describe("AminoTypes", () => {
           details: "...",
         },
         commission: {
-          rate: "0.2",
-          maxRate: "0.3",
-          maxChangeRate: "0.1",
+          rate: "200000000000000000", // 0.2
+          maxRate: "300000000000000000", // 0.3
+          maxChangeRate: "100000000000000000", // 0.1
         },
         minSelfDelegation: "123",
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         pubkey: {
           typeUrl: "/cosmos.crypto.secp256k1.PubKey",
-          value: fromBase64("A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ"),
+          value: Uint8Array.from(
+            CosmosCryptoSecp256k1Pubkey.encode(
+              CosmosCryptoSecp256k1Pubkey.fromPartial({
+                key: fromBase64("A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ"),
+              }),
+            ).finish(),
+          ),
         },
         value: coin(1234, "ucosm"),
       };
-      const aminoTypes = new AminoTypes(createStakingAminoConverters("cosmos"));
+      const aminoTypes = new AminoTypes(createStakingAminoConverters());
       const aminoMsg = aminoTypes.toAmino({
         typeUrl: "/cosmos.staking.v1beta1.MsgCreateValidator",
         value: msg,
@@ -85,17 +103,17 @@ describe("AminoTypes", () => {
             details: "...",
           },
           commission: {
-            rate: "0.2",
-            max_rate: "0.3",
-            max_change_rate: "0.1",
+            rate: "0.200000000000000000",
+            max_rate: "0.300000000000000000",
+            max_change_rate: "0.100000000000000000",
           },
           min_self_delegation: "123",
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
           validator_address: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
-          pubkey: encodeBech32Pubkey(
-            { type: "tendermint/PubKeySecp256k1", value: "A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ" },
-            "cosmos",
-          ),
+          pubkey: {
+            type: "tendermint/PubKeySecp256k1",
+            value: "A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ",
+          },
           value: coin(1234, "ucosm"),
         },
       };
@@ -108,7 +126,7 @@ describe("AminoTypes", () => {
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coin(1234, "ucosm"),
       };
-      const aminoTypes = new AminoTypes(createStakingAminoConverters("cosmos"));
+      const aminoTypes = new AminoTypes(createStakingAminoConverters());
       const aminoMsg = aminoTypes.toAmino({
         typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
         value: msg,
@@ -133,11 +151,11 @@ describe("AminoTypes", () => {
           securityContact: "Hamburglar",
           details: "...",
         },
-        commissionRate: "0.2",
+        commissionRate: "21000000000000000", // 0.021
         minSelfDelegation: "123",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
       };
-      const aminoTypes = new AminoTypes(createStakingAminoConverters("cosmos"));
+      const aminoTypes = new AminoTypes(createStakingAminoConverters());
       const aminoMsg = aminoTypes.toAmino({
         typeUrl: "/cosmos.staking.v1beta1.MsgEditValidator",
         value: msg,
@@ -152,7 +170,7 @@ describe("AminoTypes", () => {
             security_contact: "Hamburglar",
             details: "...",
           },
-          commission_rate: "0.2",
+          commission_rate: "0.021000000000000000",
           min_self_delegation: "123",
           validator_address: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         },
@@ -166,7 +184,7 @@ describe("AminoTypes", () => {
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coin(1234, "ucosm"),
       };
-      const aminoTypes = new AminoTypes(createStakingAminoConverters("cosmos"));
+      const aminoTypes = new AminoTypes(createStakingAminoConverters());
       const aminoMsg = aminoTypes.toAmino({
         typeUrl: "/cosmos.staking.v1beta1.MsgUndelegate",
         value: msg,
@@ -194,7 +212,7 @@ describe("AminoTypes", () => {
           amount: coin(1234, "ucosm"),
         },
       };
-      const msg = new AminoTypes(createStakingAminoConverters("cosmos")).fromAmino(aminoMsg);
+      const msg = new AminoTypes(createStakingAminoConverters()).fromAmino(aminoMsg);
       const expectedValue: MsgBeginRedelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorSrcAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
@@ -219,21 +237,21 @@ describe("AminoTypes", () => {
             details: "...",
           },
           commission: {
-            rate: "0.2",
-            max_rate: "0.3",
-            max_change_rate: "0.1",
+            rate: "0.200000000000000000",
+            max_rate: "0.300000000000000000",
+            max_change_rate: "0.100000000000000000",
           },
           min_self_delegation: "123",
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
           validator_address: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
-          pubkey: encodeBech32Pubkey(
-            { type: "tendermint/PubKeySecp256k1", value: "A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ" },
-            "cosmos",
-          ),
+          pubkey: {
+            type: "tendermint/PubKeySecp256k1",
+            value: "A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ",
+          },
           value: coin(1234, "ucosm"),
         },
       };
-      const msg = new AminoTypes(createStakingAminoConverters("cosmos")).fromAmino(aminoMsg);
+      const msg = new AminoTypes(createStakingAminoConverters()).fromAmino(aminoMsg);
       const expectedValue: MsgCreateValidator = {
         description: {
           moniker: "validator",
@@ -243,16 +261,22 @@ describe("AminoTypes", () => {
           details: "...",
         },
         commission: {
-          rate: "0.2",
-          maxRate: "0.3",
-          maxChangeRate: "0.1",
+          rate: "200000000000000000", // 0.2
+          maxRate: "300000000000000000", // 0.3
+          maxChangeRate: "100000000000000000", // 0.1
         },
         minSelfDelegation: "123",
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         pubkey: {
           typeUrl: "/cosmos.crypto.secp256k1.PubKey",
-          value: fromBase64("A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ"),
+          value: Uint8Array.from(
+            CosmosCryptoSecp256k1Pubkey.encode(
+              CosmosCryptoSecp256k1Pubkey.fromPartial({
+                key: fromBase64("A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ"),
+              }),
+            ).finish(),
+          ),
         },
         value: coin(1234, "ucosm"),
       };
@@ -271,7 +295,7 @@ describe("AminoTypes", () => {
           amount: coin(1234, "ucosm"),
         },
       };
-      const msg = new AminoTypes(createStakingAminoConverters("cosmos")).fromAmino(aminoMsg);
+      const msg = new AminoTypes(createStakingAminoConverters()).fromAmino(aminoMsg);
       const expectedValue: MsgDelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
@@ -294,12 +318,12 @@ describe("AminoTypes", () => {
             security_contact: "Hamburglar",
             details: "...",
           },
-          commission_rate: "0.2",
+          commission_rate: "0.050000000000000000", // 0.05
           min_self_delegation: "123",
           validator_address: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         },
       };
-      const msg = new AminoTypes(createStakingAminoConverters("cosmos")).fromAmino(aminoMsg);
+      const msg = new AminoTypes(createStakingAminoConverters()).fromAmino(aminoMsg);
       const expectedValue: MsgEditValidator = {
         description: {
           moniker: "validator",
@@ -308,7 +332,7 @@ describe("AminoTypes", () => {
           securityContact: "Hamburglar",
           details: "...",
         },
-        commissionRate: "0.2",
+        commissionRate: "50000000000000000", // 0.05
         minSelfDelegation: "123",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
       };
@@ -327,7 +351,7 @@ describe("AminoTypes", () => {
           amount: coin(1234, "ucosm"),
         },
       };
-      const msg = new AminoTypes(createStakingAminoConverters("cosmos")).fromAmino(aminoMsg);
+      const msg = new AminoTypes(createStakingAminoConverters()).fromAmino(aminoMsg);
       const expectedValue: MsgUndelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",

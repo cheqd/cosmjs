@@ -20,6 +20,7 @@ import {
   createBankAminoConverters,
   defaultRegistryTypes as defaultStargateTypes,
   DeliverTxResponse,
+  Event,
   GasPrice,
   isDeliverTxFailure,
   logs,
@@ -50,6 +51,7 @@ import pako from "pako";
 import { CosmWasmClient } from "./cosmwasmclient";
 import {
   createWasmAminoConverters,
+  JsonObject,
   MsgClearAdminEncodeObject,
   MsgExecuteContractEncodeObject,
   MsgInstantiateContractEncodeObject,
@@ -75,6 +77,7 @@ export interface UploadResult {
   readonly height: number;
   /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
   readonly transactionHash: string;
+  readonly events: readonly Event[];
   readonly gasWanted: number;
   readonly gasUsed: number;
 }
@@ -108,6 +111,7 @@ export interface InstantiateResult {
   readonly height: number;
   /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
   readonly transactionHash: string;
+  readonly events: readonly Event[];
   readonly gasWanted: number;
   readonly gasUsed: number;
 }
@@ -121,6 +125,7 @@ export interface ChangeAdminResult {
   readonly height: number;
   /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
   readonly transactionHash: string;
+  readonly events: readonly Event[];
   readonly gasWanted: number;
   readonly gasUsed: number;
 }
@@ -131,13 +136,14 @@ export interface MigrateResult {
   readonly height: number;
   /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
   readonly transactionHash: string;
+  readonly events: readonly Event[];
   readonly gasWanted: number;
   readonly gasUsed: number;
 }
 
 export interface ExecuteInstruction {
   contractAddress: string;
-  msg: Record<string, unknown>;
+  msg: JsonObject;
   funds?: readonly Coin[];
 }
 
@@ -147,6 +153,7 @@ export interface ExecuteResult {
   readonly height: number;
   /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
   readonly transactionHash: string;
+  readonly events: readonly Event[];
   readonly gasWanted: number;
   readonly gasUsed: number;
 }
@@ -162,7 +169,6 @@ function createDefaultRegistry(): Registry {
 export interface SigningCosmWasmClientOptions {
   readonly registry?: Registry;
   readonly aminoTypes?: AminoTypes;
-  readonly prefix?: string;
   readonly broadcastTimeoutMs?: number;
   readonly broadcastPollIntervalMs?: number;
   readonly gasPrice?: GasPrice;
@@ -270,6 +276,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       logs: parsedLogs,
       height: result.height,
       transactionHash: result.transactionHash,
+      events: result.events,
       gasWanted: result.gasWanted,
       gasUsed: result.gasUsed,
     };
@@ -278,7 +285,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
   public async instantiate(
     senderAddress: string,
     codeId: number,
-    msg: Record<string, unknown>,
+    msg: JsonObject,
     label: string,
     fee: StdFee | "auto" | number,
     options: InstantiateOptions = {},
@@ -305,6 +312,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       logs: parsedLogs,
       height: result.height,
       transactionHash: result.transactionHash,
+      events: result.events,
       gasWanted: result.gasWanted,
       gasUsed: result.gasUsed,
     };
@@ -333,6 +341,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       logs: logs.parseRawLog(result.rawLog),
       height: result.height,
       transactionHash: result.transactionHash,
+      events: result.events,
       gasWanted: result.gasWanted,
       gasUsed: result.gasUsed,
     };
@@ -359,6 +368,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       logs: logs.parseRawLog(result.rawLog),
       height: result.height,
       transactionHash: result.transactionHash,
+      events: result.events,
       gasWanted: result.gasWanted,
       gasUsed: result.gasUsed,
     };
@@ -368,7 +378,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
     senderAddress: string,
     contractAddress: string,
     codeId: number,
-    migrateMsg: Record<string, unknown>,
+    migrateMsg: JsonObject,
     fee: StdFee | "auto" | number,
     memo = "",
   ): Promise<MigrateResult> {
@@ -389,6 +399,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       logs: logs.parseRawLog(result.rawLog),
       height: result.height,
       transactionHash: result.transactionHash,
+      events: result.events,
       gasWanted: result.gasWanted,
       gasUsed: result.gasUsed,
     };
@@ -397,7 +408,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
   public async execute(
     senderAddress: string,
     contractAddress: string,
-    msg: Record<string, unknown>,
+    msg: JsonObject,
     fee: StdFee | "auto" | number,
     memo = "",
     funds?: readonly Coin[],
@@ -436,6 +447,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       logs: logs.parseRawLog(result.rawLog),
       height: result.height,
       transactionHash: result.transactionHash,
+      events: result.events,
       gasWanted: result.gasWanted,
       gasUsed: result.gasUsed,
     };

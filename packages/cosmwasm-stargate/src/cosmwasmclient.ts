@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fromAscii, toHex } from "@cosmjs/encoding";
+import { fromUtf8, toHex } from "@cosmjs/encoding";
 import { Uint53 } from "@cosmjs/math";
 import {
   Account,
@@ -10,6 +10,7 @@ import {
   BroadcastTxError,
   Coin,
   DeliverTxResponse,
+  fromTendermint34Event,
   IndexedTx,
   isSearchByHeightQuery,
   isSearchBySentFromOrToQuery,
@@ -71,7 +72,7 @@ export interface ContractCodeHistoryEntry {
   /** The source of this history entry */
   readonly operation: "Genesis" | "Init" | "Migrate";
   readonly codeId: number;
-  readonly msg: Record<string, unknown>;
+  readonly msg: JsonObject;
 }
 
 /** Use for testing only */
@@ -166,7 +167,7 @@ export class CosmWasmClient {
     const account = await this.getAccount(address);
     if (!account) {
       throw new Error(
-        "Account does not exist on chain. Send some tokens there before trying to query sequence.",
+        `Account '${address}' does not exist on chain. Send some tokens there before trying to query sequence.`,
       );
     }
     return {
@@ -283,6 +284,7 @@ export class CosmWasmClient {
             height: result.height,
             rawLog: result.rawLog,
             transactionHash: txId,
+            events: result.events,
             gasUsed: result.gasUsed,
             gasWanted: result.gasWanted,
           }
@@ -413,7 +415,7 @@ export class CosmWasmClient {
       return {
         operation: operations[entry.operation],
         codeId: entry.codeId.toNumber(),
-        msg: JSON.parse(fromAscii(entry.msg)),
+        msg: JSON.parse(fromUtf8(entry.msg)),
       };
     });
   }
@@ -439,7 +441,7 @@ export class CosmWasmClient {
    * Promise is rejected for invalid query format.
    * Promise is rejected for invalid response format.
    */
-  public async queryContractSmart(address: string, queryMsg: Record<string, unknown>): Promise<JsonObject> {
+  public async queryContractSmart(address: string, queryMsg: JsonObject): Promise<JsonObject> {
     try {
       return await this.forceGetQueryClient().wasm.queryContractSmart(address, queryMsg);
     } catch (error) {
@@ -462,6 +464,7 @@ export class CosmWasmClient {
         height: tx.height,
         hash: toHex(tx.hash).toUpperCase(),
         code: tx.result.code,
+        events: tx.result.events.map(fromTendermint34Event),
         rawLog: tx.result.log || "",
         tx: tx.tx,
         gasUsed: tx.result.gasUsed,

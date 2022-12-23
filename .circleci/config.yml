@@ -34,7 +34,7 @@ workflows:
             - build
           matrix:
             parameters:
-              node-version: ["14", "16"]
+              node-version: ["14", "16", "18"]
       - test-chrome:
           requires:
             - build
@@ -85,7 +85,7 @@ jobs:
           name: Install Git Large File Storage (LFS)
           # In the current image, `sudo apt install git-lfs` requires `sudo apt update` which is too slow
           command: |
-            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.12.1_amd64.deb/download.deb
+            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.13.3_amd64.deb/download.deb
             sudo dpkg -i "$HOME/git-lfs.deb"
       - checkout
       - run: # start early for less wait time below
@@ -207,7 +207,7 @@ jobs:
           name: Install Git Large File Storage (LFS)
           # In the current image, `sudo apt install git-lfs` requires `sudo apt update` which is too slow
           command: |
-            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.12.1_amd64.deb/download.deb
+            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.13.3_amd64.deb/download.deb
             sudo dpkg -i "$HOME/git-lfs.deb"
       - checkout
       - run: # start early for less wait time below
@@ -245,6 +245,7 @@ jobs:
             declare -A node_links=(
               ["14"]="https://deb.nodesource.com/node_14.x/pool/main/n/nodejs/nodejs_14.18.0-deb-1nodesource1_amd64.deb"
               ["16"]="https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_16.13.2-deb-1nodesource1_amd64.deb"
+              ["18"]="https://deb.nodesource.com/node_18.x/pool/main/n/nodejs/nodejs_18.7.0-deb-1nodesource1_amd64.deb"
             )
             wget -O "$HOME/nodejs.deb" "${node_links[<< parameters.node-version >>]}"
             sudo dpkg -i "$HOME/nodejs.deb"
@@ -329,7 +330,7 @@ jobs:
           name: Install Git Large File Storage (LFS)
           # In the current image, `sudo apt install git-lfs` requires `sudo apt update` which is too slow
           command: |
-            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.12.1_amd64.deb/download.deb
+            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.13.3_amd64.deb/download.deb
             sudo dpkg -i "$HOME/git-lfs.deb"
       - checkout
       - run: # start early for less wait time below
@@ -427,7 +428,7 @@ jobs:
           name: Install Git Large File Storage (LFS)
           # In the current image, `sudo apt install git-lfs` requires `sudo apt update` which is too slow
           command: |
-            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.12.1_amd64.deb/download.deb
+            wget -O "$HOME/git-lfs.deb" https://packagecloud.io/github/git-lfs/packages/ubuntu/focal/git-lfs_2.13.3_amd64.deb/download.deb
             sudo dpkg -i "$HOME/git-lfs.deb"
       - checkout
       - run: # start early for less wait time below

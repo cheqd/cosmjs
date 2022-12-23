@@ -1,5 +1,6 @@
 export { Account, accountFromAny, AccountParser } from "./accounts";
 export { AminoConverter, AminoConverters, AminoTypes } from "./aminotypes";
+export { Attribute, Event, fromTendermint34Event } from "./events";
 export { calculateFee, GasPrice } from "./fee";
 export * as logs from "./logs";
 export {
@@ -61,8 +62,11 @@ export {
   isAminoMsgVoteWeighted,
   isAminoMsgWithdrawDelegatorReward,
   isAminoMsgWithdrawValidatorCommission,
+  isMsgBeginRedelegateEncodeObject,
+  isMsgCreateValidatorEncodeObject,
   isMsgDelegateEncodeObject,
   isMsgDepositEncodeObject,
+  isMsgEditValidatorEncodeObject,
   isMsgSendEncodeObject,
   isMsgSubmitProposalEncodeObject,
   isMsgTransferEncodeObject,
@@ -72,8 +76,11 @@ export {
   isMsgWithdrawDelegatorRewardEncodeObject,
   MintExtension,
   MintParams,
+  MsgBeginRedelegateEncodeObject,
+  MsgCreateValidatorEncodeObject,
   MsgDelegateEncodeObject,
   MsgDepositEncodeObject,
+  MsgEditValidatorEncodeObject,
   MsgSendEncodeObject,
   MsgSubmitProposalEncodeObject,
   MsgTransferEncodeObject,
@@ -101,7 +108,9 @@ export {
   createProtobufRpcClient,
   decodeCosmosSdkDecFromProto,
   ProtobufRpcClient,
+  QueryAbciResponse,
   QueryClient,
+  QueryStoreResponse,
 } from "./queryclient";
 export {
   isSearchByHeightQuery,

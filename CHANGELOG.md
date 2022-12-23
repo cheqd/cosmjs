@@ -6,6 +6,136 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- all: The TypeScript compilation target is now ES2020 ([#1002]).
+- all: Add full support for Node.js 18 and run all CI tests with it ([#1240]).
+- @cosmjs/tendermint-rpc: Remove unused `index` field from `RpcTxEvent` and
+  `TxEvent`. This is unset starting with Tendermint 0.34.
+- @cosmjs/proto-signing: Make input and output of `decodePubkey` non-optional
+  ([#1289]).
+- @cosmjs/stargate: Remove unnecessary address prefix argument from
+  `createStakingAminoConverters`. This made `prefix` in
+  `SigningCosmWasmClientOptions` and `SigningStargateClientOptions` obsolete, so
+  this was also deleted. ([#1291])
+- @cosmjs/proto-signing: Remove `fromJSON`/`toJSON` from `TsProtoGeneratedType`
+  such that generated types are not required to generate those anymore. The
+  methods were provided by ts-proto but we never needed them. ([#1329])
+
+[#1002]: https://github.com/cosmos/cosmjs/issues/1002
+[#1240]: https://github.com/cosmos/cosmjs/pull/1240
+[#1289]: https://github.com/cosmos/cosmjs/issues/1289
+[#1291]: https://github.com/cosmos/cosmjs/issues/1291
+[#1329]: https://github.com/cosmos/cosmjs/pull/1329
+
+## [0.29.5] - 2022-12-07
+
+### Fixed
+
+- @cosmjs/stargate: Fix `protoDecimalToJson` for values with a 0 fractional
+  part, such as `0.000000000000000000`, `1.000000000000000000` or
+  `42.000000000000000000` ([#1326]).
+
+[#1326]: https://github.com/cosmos/cosmjs/pull/1326
+
+### Changed
+
+- @cosmjs/crypto: `getSubtle()` does not use `getCryptoModule()` anymore to find
+  a subtle implementation. Turns out all environments we support have subtle in
+  `globalThis` or do not have it at all ([#1307], [#1340]).
+
+[#1307]: https://github.com/cosmos/cosmjs/pull/1307
+[#1340]: https://github.com/cosmos/cosmjs/pull/1340
+
+### Deprecated
+
+- @cosmjs/stargate: Deprecate `QueryClient.queryUnverified` in favour of newly
+  added `QueryClient.queryAbci`.
+- @cosmjs/stargate: Deprecate `QueryClient.queryVerified` in favour of newly
+  added `QueryClient.queryStoreVerified`.
+
+## [0.29.4] - 2022-11-15
+
+### Added
+
+- @cosmjs/tendermint-rpc: The options in the `HttpBatchClient` constructor are
+  now of type `Partial<HttpBatchClientOptions>`, allowing you to set only the
+  fields you want to change ([#1309]).
+- @cosmjs/tendermint-rpc: Add missing exports `HttpBatchClient`,
+  `HttpBatchClientOptions`, `RpcClient` ([#1311]).
+- @cosmjs/tendermint-rpc: Send batch immediately when full in `HttpBatchClient`
+  ([#1310]).
+
+[#1309]: https://github.com/cosmos/cosmjs/issues/1309
+[#1310]: https://github.com/cosmos/cosmjs/issues/1310
+[#1311]: https://github.com/cosmos/cosmjs/issues/1311
+
+### Fixed
+
+- @cosmjs/cosmwasm-stargate: Fix `ContractCodeHistory` decoding when msg
+  contains non-printable ASCII ([#1320]).
+- @cosmjs/crypto: Bump elliptic version to ^6.5.4 due to
+  [CVE-2020-28498](https://github.com/advisories/GHSA-r9p9-mrjm-926w).
+
+[#1320]: https://github.com/cosmos/cosmjs/pull/1320
+
+## [0.29.3] - 2022-10-25
+
+### Added
+
+- @cosmjs/tendermint-rpc: Add `HttpBatchClient`, which implements `RpcClient`,
+  supporting batch RPC requests ([#1300]).
+- @cosmjs/encoding: Add `lossy` parameter to `fromUtf8` allowing the use of a
+  replacement charater instead of throwing.
+- @cosmjs/stargate: Add structured `Events`s to `IndexTx.events` and
+  `DeliverTxResponse.events`.
+- @cosmjs/cosmwasm-stargate: Add structured `Events`s field to
+  `SigningCosmWasmClient`s transaction execution methods.
+
+### Fixed
+
+- @cosmjs/stargate: Fix Amino JSON encoding of the unset case of
+  `commission_rate` and `min_self_delegation` in
+  `MsgEditValidator`/`AminoMsgEditValidator`.
+
+## [0.29.2] - 2022-10-13
+
+### Added
+
+- @cosmjs/amino: Add `encodeEd25519Pubkey` analogue to the existing
+  `encodeSecp256k1Pubkey`.
+- @cosmjs/proto-signing: Add Ed25519 support to `encodePubkey` and
+  `anyToSinglePubkey`. Export `anyToSinglePubkey`.
+- @cosmjs/utils: Add `isDefined` which checks for `undefined` in a
+  TypeScript-friendly way.
+- @cosmjs/stargate: Add missing `{is,}MsgBeginRedelegateEncodeObject`,
+  `{is,MsgCreateValidatorEncodeObject}` and `{is,MsgEditValidatorEncodeObject}`.
+
+[#1300]: https://github.com/cosmos/cosmjs/pull/1300
+
+### Fixed
+
+- @cosmjs/cosmwasm-stargate: Use type `JsonObject = any` for smart query
+  requests and messages (in `WasmExtension.wasm.queryContractSmart`,
+  `CosmWasmClient.queryContractSmart`, `SigningCosmWasmClient.instantiate`,
+  `SigningCosmWasmClient.migrate`, `SigningCosmWasmClient.execute`). This
+  reverts the type change done in CosmJS 0.23.0. ([#1281], [#1284])
+- @cosmjs/cosmwasm-stargate: `AminoMsgCreateValidator` and
+  `createStakingAminoConverters` were fixed after testing both
+  `MsgCreateValidator` and `MsgEditValidator` in sign mode direct and Amino JSON
+  ([#1290]).
+
+[#1281]: https://github.com/cosmos/cosmjs/pull/1281
+[#1284]: https://github.com/cosmos/cosmjs/pull/1284
+[#1290]: https://github.com/cosmos/cosmjs/pull/1290
+
+## [0.29.1] - 2022-10-09
+
+### Changed
+
+- @cosmjs/stargate, @cosmjs/cosmwasm-stargate: Add address to "Account does not
+  exist on chain." error message.
+
 ## [0.29.0] - 2022-09-15
 
 ### Added
@@ -1030,7 +1160,12 @@ CHANGELOG entries missing. Please see [the diff][0.24.1].
   `FeeTable`. @cosmjs/cosmwasm has its own `FeeTable` with those properties.
 - @cosmjs/sdk38: Rename package to @cosmjs/launchpad.
 
-[unreleased]: https://github.com/cosmos/cosmjs/compare/v0.29.0...HEAD
+[unreleased]: https://github.com/cosmos/cosmjs/compare/v0.29.5...HEAD
+[0.29.5]: https://github.com/cosmos/cosmjs/compare/v0.29.4...v0.29.5
+[0.29.4]: https://github.com/cosmos/cosmjs/compare/v0.29.3...v0.29.4
+[0.29.3]: https://github.com/cosmos/cosmjs/compare/v0.29.2...v0.29.3
+[0.29.2]: https://github.com/cosmos/cosmjs/compare/v0.29.1...v0.29.2
+[0.29.1]: https://github.com/cosmos/cosmjs/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/cosmos/cosmjs/compare/v0.28.11...v0.29.0
 [0.28.11]: https://github.com/cosmos/cosmjs/compare/v0.28.10...v0.28.11
 [0.28.10]: https://github.com/cosmos/cosmjs/compare/v0.28.9...v0.28.10

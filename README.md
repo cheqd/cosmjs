@@ -78,6 +78,7 @@ Build with depsight (https://github.com/webmaster128/depsight), using:
 from_npm . | depsight --include "^@cosmjs" --format png --dpi 150 --output docs/cosmjs-tree.png
 from_npm . | depsight --exclude cosmjs-monorepo-root --format png --dpi 150 --output docs/cosmjs-tree-full.png
 optipng docs/cosmjs-tree*.png
+
 -->
 
 ### Supported JS environments

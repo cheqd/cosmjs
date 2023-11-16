@@ -83,13 +83,13 @@ export class Faucet {
   }
 
   /** Use one of the distributor accounts to send tokens to user */
-  public async credit(recipient: string, denom: string): Promise<void> {
+  public async credit(recipient: string, denom: string, amount?: number): Promise<void> {
     if (this.distributorAddresses.length === 0) throw new Error("No distributor account available");
     const sender = this.distributorAddresses[this.getCreditCount() % this.distributorAddresses.length];
     const job: SendJob = {
       sender: sender,
       recipient: recipient,
-      amount: this.tokenManager.creditAmount(denom),
+      amount: this.tokenManager.creditAmount(denom, amount),
     };
     if (this.logging) logSendJob(job);
     await this.send(job);

@@ -24,9 +24,10 @@ export class TokenManager {
   }
 
   /** The amount of tokens that will be sent to the user */
-  public creditAmount(denom: string, factor: Uint53 = new Uint53(1)): Coin {
+  public creditAmount(denom: string, factor: Uint53 = new Uint53(1), customAmount?: number): Coin {
     const amountFromEnv = process.env[`FAUCET_CREDIT_AMOUNT_${denom.toUpperCase()}`];
-    const amount = amountFromEnv ? Uint53.fromString(amountFromEnv).toNumber() : defaultCreditAmount;
+    const defaultAmount = amountFromEnv ? Uint53.fromString(amountFromEnv).toNumber() : defaultCreditAmount;
+    const amount = customAmount && customAmount < defaultAmount ? customAmount : defaultAmount;
     const value = new Uint53(amount * factor.toNumber());
     return {
       amount: value.toString(),

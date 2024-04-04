@@ -6,6 +6,67 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.32.3] - 2024-03-08
+
+### Changed
+
+- @cosmjs/amino: Add IBC denom support to `parseCoins` and use the same
+  implementation in all those imports:
+
+  ```ts
+  import { parseCoins } from "@cosmjs/proto-signing";
+  // equals
+  import { parseCoins } from "@cosmjs/stargate";
+  // equals
+  import { parseCoins } from "@cosmjs/amino";
+  ```
+
+- @cosmjs/stargate: Let `parseRawLog` gracefully handle empty strings to better
+  support Cosmos SDK 0.50 inputs. ([#1564])
+
+[#1564]: https://github.com/cosmos/cosmjs/pull/1564
+
+### Fixed
+
+- @cosmjs/encoding: Avoid using replacement character in doc comment to make
+  external tools happy. ([#1570])
+- @cosmjs/cosmwasm-stargate: Use events instead of log parsing to receive
+  information in SigningCosmWasmClient. This is required to support Cosmos SDK
+  0.50+ where the `rawLog` field is empty. ([#1564])
+
+[#1564]: https://github.com/cosmos/cosmjs/pull/1564
+[#1570]: https://github.com/cosmos/cosmjs/pull/1570
+
+## [0.32.2] - 2023-12-19
+
+### Fixed
+
+- @cosmjs/stargate: Update validation of `GasPrice.fromString` to allow using
+  IBC denoms as gas denom. ([#1522])
+
+[#1522]: https://github.com/cosmos/cosmjs/pull/1522
+
+### Changed
+
+- @cosmjs/tendermint-rpc: Require protocol to be set in endpoint URLs (https://,
+  http://, wss:// or ws://). Otherwise an error is raised instead of falling
+  back to ws://. ([#1527])
+
+[#1527]: https://github.com/cosmos/cosmjs/pull/1527
+
+## [0.32.1] - 2023-12-04
+
+### Fixed
+
+- @cosmjs/encoding: Ensure RFC dates between years 0001 and 0099 are parsed
+  correctly. ([#1516])
+- @cosmjs/tendermint-rpc: Remove hacky `decodeOptionalTime()` from adaptors now
+  that `time.Time` dates are parsed correctly. ([#1516])
+
+[#1516]: https://github.com/cosmos/cosmjs/pull/1516
+
+## [0.32.0] - 2023-11-23
+
 ### Added
 
 - @cosmjs/stargate and @cosmjs/cosmwasm-stargate:
@@ -69,6 +130,9 @@ and this project adheres to
   `TendermintClient`.
 - @cosmjs/stargate: Deprecate `SigningStargateClient.sendIbcTokens`. Please use
   `signAndBroadcast` + `MsgTransferEncodeObject` instead. ([#1493])
+- @cosmjs/stargate: Deprecate `IndexedTx.rawLog` and `DeliverTxResponse.rawLog`
+  because those fields are unset from Cosmos SDK 0.50 onwards (see
+  [here](https://github.com/cosmos/cosmos-sdk/pull/15845)).
 
 [#1493]: https://github.com/cosmos/cosmjs/issues/1493
 
@@ -1379,7 +1443,11 @@ CHANGELOG entries missing. Please see [the diff][0.24.1].
   `FeeTable`. @cosmjs/cosmwasm has its own `FeeTable` with those properties.
 - @cosmjs/sdk38: Rename package to @cosmjs/launchpad.
 
-[unreleased]: https://github.com/cosmos/cosmjs/compare/v0.31.3...HEAD
+[unreleased]: https://github.com/cosmos/cosmjs/compare/v0.32.3...HEAD
+[0.32.3]: https://github.com/cosmos/cosmjs/compare/v0.32.2...v0.32.3
+[0.32.2]: https://github.com/cosmos/cosmjs/compare/v0.32.1...v0.32.2
+[0.32.1]: https://github.com/cosmos/cosmjs/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/cosmos/cosmjs/compare/v0.31.3...v0.32.0
 [0.31.3]: https://github.com/cosmos/cosmjs/compare/v0.31.2...v0.31.3
 [0.31.2]: https://github.com/cosmos/cosmjs/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/cosmos/cosmjs/compare/v0.31.0...v0.31.1

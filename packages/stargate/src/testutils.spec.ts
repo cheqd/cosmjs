@@ -28,19 +28,23 @@ export function simapp47Enabled(): boolean {
   return !!process.env.SIMAPP47_ENABLED;
 }
 
+export function simapp50Enabled(): boolean {
+  return !!process.env.SIMAPP50_ENABLED;
+}
+
 export function simappEnabled(): boolean {
-  return simapp44Enabled() || simapp46Enabled() || simapp47Enabled();
+  return simapp44Enabled() || simapp46Enabled() || simapp47Enabled() || simapp50Enabled();
 }
 
 export function pendingWithoutSimapp46OrHigher(): void {
-  if (!simapp46Enabled() && !simapp47Enabled()) {
-    return pending("Set SIMAPP46_ENABLED or SIMAPP47_ENABLED to enable Simapp based tests");
+  if (!simapp46Enabled() && !simapp47Enabled() && !simapp50Enabled()) {
+    return pending("Set SIMAPP{46,47,50}_ENABLED to enable Simapp based tests");
   }
 }
 
 export function pendingWithoutSimapp(): void {
   if (!simappEnabled()) {
-    return pending("Set SIMAPP{44,46,47}_ENABLED to enable Simapp based tests");
+    return pending("Set SIMAPP{44,46,47,50}_ENABLED to enable Simapp based tests");
   }
 }
 
@@ -48,13 +52,14 @@ export function slowSimappEnabled(): boolean {
   return (
     !!process.env.SLOW_SIMAPP44_ENABLED ||
     !!process.env.SLOW_SIMAPP46_ENABLED ||
-    !!process.env.SLOW_SIMAPP47_ENABLED
+    !!process.env.SLOW_SIMAPP47_ENABLED ||
+    !!process.env.SLOW_SIMAPP50_ENABLED
   );
 }
 
 export function pendingWithoutSlowSimapp(): void {
   if (!slowSimappEnabled()) {
-    return pending("Set SLOW_SIMAPP{44,46,47}_ENABLED to enable slow Simapp based tests");
+    return pending("Set SLOW_SIMAPP{44,46,47,50}_ENABLED to enable slow Simapp based tests");
   }
 }
 
@@ -76,7 +81,6 @@ export const defaultGasPrice = GasPrice.fromString("0.025ucosm");
 export const defaultSendFee = calculateFee(100_000, defaultGasPrice);
 
 export const simapp = {
-  tendermintUrl: "localhost:26658",
   tendermintUrlWs: "ws://localhost:26658",
   tendermintUrlHttp: "http://localhost:26658",
   chainId: "simd-testing",
@@ -88,7 +92,6 @@ export const simapp = {
 };
 
 export const slowSimapp = {
-  tendermintUrl: "localhost:26660",
   tendermintUrlWs: "ws://localhost:26660",
   tendermintUrlHttp: "http://localhost:26660",
   chainId: "simd-testing",

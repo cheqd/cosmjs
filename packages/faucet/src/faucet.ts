@@ -12,6 +12,7 @@ import { PathBuilder } from "./pathbuilder";
 import { createClients, createWallets } from "./profile";
 import { TokenConfiguration, TokenManager } from "./tokenmanager";
 import { MinimalAccount, SendJob } from "./types";
+import { Uint53 } from "@cosmjs/math";
 
 export class Faucet {
   public static async make(
@@ -86,10 +87,19 @@ export class Faucet {
   public async credit(recipient: string, denom: string, amount?: number): Promise<void> {
     if (this.distributorAddresses.length === 0) throw new Error("No distributor account available");
     const sender = this.distributorAddresses[this.getCreditCount() % this.distributorAddresses.length];
+
+    let amountToCredit: Uint53 | undefined;
+
+    if (amount !== undefined) {
+        amountToCredit = new Uint53(amount);
+    } else {
+        amountToCredit = undefined;
+    }
+
     const job: SendJob = {
       sender: sender,
       recipient: recipient,
-      amount: this.tokenManager.creditAmount(denom, amount),
+      amount: this.tokenManager.creditAmount(denom, amountToCredit),
     };
     if (this.logging) logSendJob(job);
     await this.send(job);

@@ -13,10 +13,11 @@ export class FaucetClient {
     this.baseUrl = strippedBaseUrl;
   }
 
-  public async credit(address: string, denom: string): Promise<void> {
+  public async credit(address: string, denom: string, amount?: number): Promise<void> {
     const body = {
       address: address,
       denom: denom,
+      amount: amount
     };
 
     try {

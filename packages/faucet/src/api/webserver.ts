@@ -59,7 +59,7 @@ export class Webserver {
           // context.request.body is set by the bodyParser() plugin
           const requestBody = (context.request as any).body;
           const creditBody = RequestParser.parseCreditBody(requestBody);
-          const { address, denom } = creditBody;
+          const { address, denom, amount } = creditBody;
 
           if (!isValidAddress(address, constants.addressPrefix)) {
             throw new HttpError(400, "Address is not in the expected format for this chain.");
@@ -83,6 +83,7 @@ export class Webserver {
           }
 
           try {
+            await faucet.credit(address, matchingDenom, amount);
             // Count addresses to prevent draining
             this.addressCounter.set(address, new Date());
             await faucet.credit(address, matchingDenom);

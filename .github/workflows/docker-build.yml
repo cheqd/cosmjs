@@ -13,7 +13,7 @@ jobs:
     name: "Build and push Docker image"
     runs-on: ubuntu-latest
     env: 
-      IMAGE_NAME: 'cheqd-faucet'
+      IMAGE_NAME: 'cheqd/cheqd-faucet'
     
     steps:
       - uses: actions/checkout@v3

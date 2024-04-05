@@ -3,7 +3,7 @@ import { RequestParser } from "./requestparser";
 describe("RequestParser", () => {
   it("can process valid credit request with denom", () => {
     const body = { address: "abc", denom: "utkn" };
-    expect(RequestParser.parseCreditBody(body)).toEqual({ address: "abc", denom: "utkn" });
+    expect(RequestParser.parseCreditBody(body)).toEqual({ address: "abc", denom: "utkn", amount: 1 });
   });
 
   it("throws helpful error message when ticker is found", () => {

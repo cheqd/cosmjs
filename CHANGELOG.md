@@ -6,6 +6,38 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.33.0] - 2025-01-15
+
+### Changed
+
+- Upgrade to yarn 4 and drop Node.js 16 support ([#1552])
+- @cosmjs/stargate: Removed support for verified queries. This feature depends
+  on a JavaScript implementation of ICS-23 but
+  [@confio/ics23 is unmaintained](https://github.com/cosmos/cosmjs/issues/1618)
+  without replacement.
+- @cosmjs/proto-signing: Upgrade protobufjs to 7.4.
+
+[#1552]: https://github.com/cosmos/cosmjs/issues/1552
+
+## [0.32.4] - 2024-06-26
+
+### Fixed
+
+- @cosmjs/tendermint-rpc: fix node info check to accept empty string on channels
+  field ([#1591])
+
+### Added
+
+- @cosmjs/stargate: Add support for `MsgCancelUnbondingDelegation` ([#1535])
+
+[#1535]: https://github.com/cosmos/cosmjs/pull/1535
+
+### Changed
+
+- @cosmjs/stargate, @cosmjs/cosmwasm-stargate: Synchronize the default gas
+  multiplier value between the `signAndBroadcast` and `signAndBroadcastSync`
+  methods so that it is equal to 1.4 everywhere. ([#1584])
+
 ## [0.32.3] - 2024-03-08
 
 ### Changed
@@ -1443,7 +1475,9 @@ CHANGELOG entries missing. Please see [the diff][0.24.1].
   `FeeTable`. @cosmjs/cosmwasm has its own `FeeTable` with those properties.
 - @cosmjs/sdk38: Rename package to @cosmjs/launchpad.
 
-[unreleased]: https://github.com/cosmos/cosmjs/compare/v0.32.3...HEAD
+[unreleased]: https://github.com/cosmos/cosmjs/compare/v0.33.0...HEAD
+[0.33.0]: https://github.com/cosmos/cosmjs/compare/v0.32.4...v0.33.0
+[0.32.4]: https://github.com/cosmos/cosmjs/compare/v0.32.3...v0.32.4
 [0.32.3]: https://github.com/cosmos/cosmjs/compare/v0.32.2...v0.32.3
 [0.32.2]: https://github.com/cosmos/cosmjs/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/cosmos/cosmjs/compare/v0.32.0...v0.32.1

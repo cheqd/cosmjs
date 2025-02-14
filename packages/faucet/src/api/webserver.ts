@@ -1,6 +1,7 @@
 import Koa from "koa";
 import cors = require("@koa/cors");
 import bodyParser from "koa-bodyparser";
+import { Context } from "koa";
 
 import { isValidAddress } from "../addresses";
 import * as constants from "../constants";
@@ -17,6 +18,10 @@ export interface ChainConstants {
 export class Webserver {
   private readonly api = new Koa();
   private readonly addressCounter = new Map<string, Date>();
+
+  private getCountryFromRequest(context: Context): string {
+    return context.get('CF-IPCountry') || 'XX';
+  }
 
   public constructor(faucet: Faucet, chainConstants: ChainConstants) {
     this.api.use(cors());
@@ -56,10 +61,10 @@ export class Webserver {
             throw new HttpError(415, "Content-type application/json expected");
           }
 
-          // context.request.body is set by the bodyParser() plugin
           const requestBody = (context.request as any).body;
           const creditBody = RequestParser.parseCreditBody(requestBody);
-          const { address, denom, amount } = creditBody;
+          const { address, denom, amount, email, marketingOptin } = creditBody;
+          const country = this.getCountryFromRequest(context);
 
           if (!isValidAddress(address, constants.addressPrefix)) {
             throw new HttpError(400, "Address is not in the expected format for this chain.");
@@ -70,8 +75,8 @@ export class Webserver {
             const cooldownTimeMs = constants.cooldownTime * 1000;
             if (entry.getTime() + cooldownTimeMs > Date.now()) {
               throw new HttpError(
-                405,
-                `Too many request for the same address. Blocked to prevent draining. Please wait ${constants.cooldownTime} seconds and try it again!`,
+                429,
+                `Too many requests for the same address. Please wait ${constants.cooldownTime} seconds.`,
               );
             }
           }
@@ -83,15 +88,13 @@ export class Webserver {
           }
 
           try {
-            // Count addresses to prevent draining
             this.addressCounter.set(address, new Date());
-            await faucet.credit(address, matchingDenom, amount);
-          } catch (e) {
-            console.error(e);
-            throw new HttpError(500, "Sending tokens failed");
+            await faucet.credit(address, denom, email, marketingOptin, country, amount);
+            context.response.body = { status: "ok" };
+          } catch (error) {
+            console.error("Failed to process credit request:", error);
+            throw new HttpError(500, "Failed to process credit request");
           }
-
-          context.response.body = "ok";
           break;
         }
         default:

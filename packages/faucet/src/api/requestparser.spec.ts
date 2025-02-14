@@ -3,7 +3,13 @@ import { RequestParser } from "./requestparser";
 describe("RequestParser", () => {
   it("can process valid credit request with denom", () => {
     const body = { address: "abc", denom: "utkn" };
-    expect(RequestParser.parseCreditBody(body)).toEqual({ address: "abc", denom: "utkn", amount: 1 });
+    expect(RequestParser.parseCreditBody(body)).toEqual({ 
+      address: "abc", 
+      denom: "utkn", 
+      amount: 1,
+      email: "test@example.com",
+      marketingOptin: false,
+    });
   });
 
   it("throws helpful error message when ticker is found", () => {
@@ -66,5 +72,19 @@ describe("RequestParser", () => {
       const body = { address: "abc", denom: "" };
       expect(() => RequestParser.parseCreditBody(body)).toThrowError(/Property 'denom' must not be empty/i);
     }
+  });
+
+  describe("parseCreditBody", () => {
+    it("works for valid body", () => {
+      const body = {
+        address: "abc",
+        denom: "utkn",
+        amount: 1,
+        email: "test@example.com",
+        marketingOptin: false,
+        country: "XX"
+      };
+      expect(RequestParser.parseCreditBody(body)).toEqual(body);
+    });
   });
 });

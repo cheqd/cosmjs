@@ -13,6 +13,7 @@ import { createClients, createWallets } from "./profile";
 import { TokenConfiguration, TokenManager } from "./tokenmanager";
 import { MinimalAccount, SendJob } from "./types";
 import { Uint53 } from "@cosmjs/math";
+import { database , FaucetRequest } from "./database";
 
 export class Faucet {
   public static async make(
@@ -76,25 +77,56 @@ export class Faucet {
    * Creates and broadcasts a send transaction. Then waits until the transaction is in a block.
    * Throws an error if the transaction failed.
    */
-  public async send(job: SendJob): Promise<void> {
+  public async send(job: SendJob): Promise<string> {
     const client = this.clients[job.sender];
     const fee = calculateFee(constants.gasLimitSend, constants.gasPrice);
     const result = await client.sendTokens(job.sender, job.recipient, [job.amount], fee, constants.memo);
     assertIsDeliverTxSuccessStargate(result);
+    return result.transactionHash;
   }
 
   /** Use one of the distributor accounts to send tokens to user */
-  public async credit(recipient: string, denom: string, amount?: number): Promise<void> {
-    if (this.distributorAddresses.length === 0) throw new Error("No distributor account available");
+  public async credit(
+    recipient: string,
+    denom: string,
+    email: string,
+    marketingOptin: boolean,
+    country: string,
+    amount: number
+  ): Promise<void> {
+    if (this.distributorAddresses.length === 0) {
+      throw new Error("No distributor account available");
+    }
+    
     const sender = this.distributorAddresses[this.getCreditCount() % this.distributorAddresses.length];
 
+    const tokenAmount = this.tokenManager.creditAmount(denom, new Uint53(1), amount);
     const job: SendJob = {
       sender: sender,
       recipient: recipient,
-      amount: this.tokenManager.creditAmount(denom, new Uint53(1), amount),
+      amount: tokenAmount,
     };
     if (this.logging) logSendJob(job);
-    await this.send(job);
+    
+    try {
+      const result = await this.send(job);
+      
+      const faucetRequest: FaucetRequest = {
+        email_address: email,
+        from_address: sender,
+        to_address: recipient,
+        hash: result,
+        marketing_optin: marketingOptin,
+        amount: BigInt(tokenAmount.amount),
+        denom: tokenAmount.denom,
+        country: country,
+      };
+
+      await database.saveRequest(faucetRequest);
+    } catch (error) {
+      console.error("Failed to process credit request:", error);
+      throw error;
+    }
   }
 
   /** Returns a list to token denoms which are configured */

@@ -170,7 +170,14 @@ describe("Faucet", () => {
           stargate,
         );
         const recipient = makeRandomAddress();
-        await faucet.credit(recipient, "ucosm");
+        await faucet.credit(
+          recipient, 
+          "ucosm",
+          "test@example.com",
+          false,
+          "US",
+          10000000
+        );
 
         const readOnlyClient = await StargateClient.connect(apiUrl);
         const balance = await readOnlyClient.getAllBalances(recipient);
@@ -195,7 +202,14 @@ describe("Faucet", () => {
           stargate,
         );
         const recipient = makeRandomAddress();
-        await faucet.credit(recipient, "ustake");
+        await faucet.credit(
+          recipient, 
+          "ustake",
+          "test@example.com",
+          false,
+          "US",
+          100000
+        );
 
         const readOnlyClient = await StargateClient.connect(apiUrl);
         const balance = await readOnlyClient.getAllBalances(recipient);

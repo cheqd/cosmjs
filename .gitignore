@@ -28,10 +28,10 @@ coverage/
 
 # Yarn v2
 .yarn/*
-!.yarn/cache
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/sdks
+!.yarn/versions
 # We are not using yarn's deferred versioning for now (see https://yarnpkg.com/features/release-workflow)
 # !.yarn/versions

@@ -8,14 +8,11 @@ export interface CreditRequestBodyData {
   /** The recipient address */
   readonly address: string;
   /** The amount of tokens to transfer */
-  readonly amount: number
-}
-
-export interface CreditRequestBodyDataWithTicker {
-  /** The ticker symbol */
-  readonly ticker: string;
-  /** The recipient address */
-  readonly address: string;
+  readonly amount: number;
+  /** The email address */
+  readonly email: string;
+  /** Whether the user opted in for marketing */
+  readonly marketingOptin: boolean;
 }
 
 export class RequestParser {
@@ -24,11 +21,13 @@ export class RequestParser {
       throw new HttpError(400, "Request body must be a dictionary.");
     }
 
-    const { address, denom, ticker, amount } = body as any;
-
-    if (typeof ticker !== "undefined") {
-      throw new HttpError(400, "The 'ticker' field was removed in CosmJS 0.23. Please use 'denom' instead.");
-    }
+    const { 
+      address, 
+      denom, 
+      amount, 
+      email, 
+      marketing_optin: marketingOptin
+    } = body as any;
 
     if (typeof address !== "string") {
       throw new HttpError(400, "Property 'address' must be a string.");
@@ -45,15 +44,29 @@ export class RequestParser {
     if (denom.length === 0) {
       throw new HttpError(400, "Property 'denom' must not be empty.");
     }
+    
+    if (typeof email !== "string") {
+      throw new HttpError(400, "Property 'email' must be a string.");
+    }
+
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      throw new HttpError(400, "Invalid email format.");
+    }
 
     if (amount && typeof amount !== "number") {
-        throw new HttpError(400, "Property 'amount' must be a number.");
-      }
+      throw new HttpError(400, "Property 'amount' must be a number.");
+    }
+
+    if (typeof marketingOptin !== "boolean") {
+      throw new HttpError(400, "Property 'marketing_optin' must be a boolean.");
+    }
 
     return {
-      address: address,
-      denom: denom,
-      amount: amount
+      address,
+      denom,
+      amount,
+      email,
+      marketingOptin
     };
   }
 }

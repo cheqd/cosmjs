@@ -26,3 +26,6 @@ export const tokenConfig: TokenConfiguration = {
 export const cooldownTime = process.env.FAUCET_COOLDOWN_TIME
   ? Number.parseInt(process.env.FAUCET_COOLDOWN_TIME, 10)
   : 24 * 3600;
+
+// Database configuration
+export const databaseUrl = process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/faucet";

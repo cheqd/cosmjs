@@ -1,5 +1,5 @@
 {
-  "id": "735ef7bd-cf96-4ceb-8dbd-0894f2fe7aa5",
+  "id": "d119d385-9a1b-4212-af73-7d53a2b22e1c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -14,9 +14,21 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "company": {
+          "name": "company",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "email_address": {
           "name": "email_address",
-          "type": "varchar",
+          "type": "varchar(254)",
           "primaryKey": false,
           "notNull": true
         },

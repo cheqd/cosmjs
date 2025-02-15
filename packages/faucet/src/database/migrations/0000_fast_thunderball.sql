@@ -1,6 +1,8 @@
 CREATE TABLE "requests" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"email_address" varchar NOT NULL,
+	"name" varchar(50) NOT NULL,
+	"company" varchar(150),
+	"email_address" varchar(254) NOT NULL,
 	"from_address" varchar(44) NOT NULL,
 	"to_address" varchar(44) NOT NULL,
 	"hash" varchar(64) NOT NULL,

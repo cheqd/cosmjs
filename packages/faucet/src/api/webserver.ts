@@ -63,7 +63,7 @@ export class Webserver {
 
           const requestBody = (context.request as any).body;
           const creditBody = RequestParser.parseCreditBody(requestBody);
-          const { address, denom, amount, email, marketingOptin } = creditBody;
+          const { address, denom, amount, email, marketingOptin, name, company } = creditBody;
           const country = this.getCountryFromRequest(context);
 
           if (!isValidAddress(address, constants.addressPrefix)) {
@@ -89,7 +89,16 @@ export class Webserver {
 
           try {
             this.addressCounter.set(address, new Date());
-            await faucet.credit(address, denom, email, marketingOptin, country, amount);
+            await faucet.credit(
+              email,
+              name,
+              address,
+              denom,
+              amount,
+              marketingOptin,
+              country,
+              company
+            );
             context.response.body = { status: "ok" };
           } catch (error) {
             console.error("Failed to process credit request:", error);

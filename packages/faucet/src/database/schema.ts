@@ -2,7 +2,9 @@ import { bigint, boolean, pgTable, serial, timestamp, varchar } from 'drizzle-or
 
 export const requests = pgTable('requests', {
   id: serial('id').primaryKey(),
-  email_address: varchar('email_address').notNull(),
+  name: varchar('name', { length: 50 }).notNull(),
+  company: varchar('company', { length: 150 }),
+  email_address: varchar('email_address', { length: 254 }).notNull(),
   from_address: varchar('from_address', { length: 44 }).notNull(),
   to_address: varchar('to_address', { length: 44 }).notNull(),
   hash: varchar('hash', { length: 64 }).notNull(),

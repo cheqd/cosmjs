@@ -3,6 +3,7 @@ import { requests } from './schema';
 
 export interface FaucetRequest {
   email_address: string;
+  name: string;
   from_address: string;
   to_address: string;
   hash: string;
@@ -10,6 +11,7 @@ export interface FaucetRequest {
   amount: bigint;
   denom: string;
   country: string;
+  company?: string | null;
 }
 
 class DatabaseService {
@@ -18,13 +20,15 @@ class DatabaseService {
     try {
       await db.insert(requests).values({
         email_address: request.email_address,
+        name: request.name,
         from_address: request.from_address,
         to_address: request.to_address,
         hash: request.hash,
         marketing_optin: request.marketing_optin,
         amount: request.amount,
         denom: request.denom,
-        country: request.country
+        country: request.country,
+        company: request.company || null,
       });
       await client.query('COMMIT');
     } catch (error) {

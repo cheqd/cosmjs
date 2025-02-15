@@ -87,12 +87,14 @@ export class Faucet {
 
   /** Use one of the distributor accounts to send tokens to user */
   public async credit(
-    recipient: string,
-    denom: string,
     email: string,
+    name: string,
+    toAddress: string,
+    denom: string,
+    amount: number,
     marketingOptin: boolean,
     country: string,
-    amount: number
+    company?: string,
   ): Promise<void> {
     if (this.distributorAddresses.length === 0) {
       throw new Error("No distributor account available");
@@ -103,7 +105,7 @@ export class Faucet {
     const tokenAmount = this.tokenManager.creditAmount(denom, new Uint53(1), amount);
     const job: SendJob = {
       sender: sender,
-      recipient: recipient,
+      recipient: toAddress,
       amount: tokenAmount,
     };
     if (this.logging) logSendJob(job);
@@ -113,13 +115,15 @@ export class Faucet {
       
       const faucetRequest: FaucetRequest = {
         email_address: email,
+        name: name,
         from_address: sender,
-        to_address: recipient,
+        to_address: toAddress,
         hash: result,
+        denom: tokenAmount.denom,
         marketing_optin: marketingOptin,
         amount: BigInt(tokenAmount.amount),
-        denom: tokenAmount.denom,
         country: country,
+        company: company || ""
       };
 
       await database.saveRequest(faucetRequest);

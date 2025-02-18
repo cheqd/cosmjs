@@ -55,8 +55,8 @@ export class RequestParser {
       throw new HttpError(400, "Property 'email' must be a string.");
     }
 
-    if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
-      throw new HttpError(400, "Invalid email format.");
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      throw new Error("Invalid email address format");
     }
 
     if (amount && typeof amount !== "number") {

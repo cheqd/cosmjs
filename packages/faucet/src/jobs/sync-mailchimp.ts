@@ -5,7 +5,7 @@ import mailchimp from '@mailchimp/mailchimp_marketing';
 
 export class MailchimpService {
   constructor() {
-    if (!process.env.MAILCHIMP_API_KEY || !process.env.MAILCHIMP_SERVER_PREFIX) {
+    if (!process.env.MAILCHIMP_API_KEY || !process.env.MAILCHIMP_SERVER_PREFIX || !process.env.MAILCHIMP_LIST_ID) {
       throw new Error('Mailchimp configuration is missing');
     }
 

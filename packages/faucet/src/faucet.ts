@@ -5,6 +5,7 @@ import {
   StargateClient,
 } from "@cosmjs/stargate";
 import { isDefined, sleep } from "@cosmjs/utils";
+import { scheduler } from './jobs/scheduler';
 
 import * as constants from "./constants";
 import { debugAccount, logAccountsState, logSendJob } from "./debugging";
@@ -28,6 +29,10 @@ export class Faucet {
     const wallets = await createWallets(mnemonic, pathBuilder, addressPrefix, numberOfDistributors, logging);
     const clients = await createClients(apiUrl, wallets);
     const readonlyClient = await StargateClient.connect(apiUrl);
+
+    // Start the scheduler
+    scheduler.start();
+    
     return new Faucet(addressPrefix, config, clients, readonlyClient, logging);
   }
 

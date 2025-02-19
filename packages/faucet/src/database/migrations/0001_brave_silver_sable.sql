@@ -1,0 +1,1 @@
+ALTER TABLE "requests" ADD COLUMN "mailchimp_synced" boolean DEFAULT false NOT NULL;

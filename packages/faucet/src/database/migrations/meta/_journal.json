@@ -8,6 +8,13 @@
       "when": 1739615874144,
       "tag": "0000_fast_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1739979885656,
+      "tag": "0001_brave_silver_sable",
+      "breakpoints": true
     }
   ]
 }

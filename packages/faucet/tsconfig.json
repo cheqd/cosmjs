@@ -3,7 +3,13 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "build",
-    "rootDir": "src"
+    "rootDir": "src",
+    "lib": ["es2020", "dom"],
+    "target": "es2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*"

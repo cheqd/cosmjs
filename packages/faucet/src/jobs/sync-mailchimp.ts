@@ -2,10 +2,11 @@ import { db } from '../database/client';
 import { requests } from '../database/schema';
 import { eq, and } from 'drizzle-orm';
 import mailchimp from '@mailchimp/mailchimp_marketing';
+import { ErrorResponse as MailchimpError } from 'mailchimp__mailchimp_marketing';
 
 export class MailchimpService {
   constructor() {
-    if (!process.env.MAILCHIMP_API_KEY || !process.env.MAILCHIMP_SERVER_PREFIX || !process.env.MAILCHIMP_LIST_ID) {
+    if (!process.env.MAILCHIMP_API_KEY || !process.env.MAILCHIMP_SERVER_PREFIX) {
       throw new Error('Mailchimp configuration is missing');
     }
 
@@ -15,8 +16,11 @@ export class MailchimpService {
     });
   }
 
-  async addSubscriber(email: string, name: string, company?: string) {
+  async addSubscriber(email: string, name: string, company?: string | null) {
     try {
+      if (!process.env.MAILCHIMP_LIST_ID) {
+        throw new Error('Mailchimp list ID is missing');
+      }
       await mailchimp.lists.addListMember(process.env.MAILCHIMP_LIST_ID, {
         email_address: email,
         status: 'subscribed',
@@ -26,10 +30,25 @@ export class MailchimpService {
         },
       });
     } catch (error) {
-      console.error('Failed to add subscriber to Mailchimp:', error);
+      const mailchimpError = (error as any).response?.body as MailchimpError;
+      console.error(JSON.stringify({
+        message: 'Failed to add subscriber to Mailchimp',
+        level: 'error',
+        service: 'mailchimp_sync',
+        event_type: 'sync_failure',
+        error: {
+          title: mailchimpError?.title,
+          status: mailchimpError?.status,
+          detail: mailchimpError?.detail,
+          instance: mailchimpError?.instance
+        },
+        metadata: {
+          email,
+          timestamp: new Date().toISOString()
+        }
+      }));
     }
   }
-
 }
 
 const mailchimpService = new MailchimpService();

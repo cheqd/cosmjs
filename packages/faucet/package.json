@@ -50,10 +50,13 @@
     "@cosmjs/stargate": "workspace:^",
     "@cosmjs/utils": "workspace:^",
     "@koa/cors": "^3.3",
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
+    "@types/node-cron": "^3.0.11",
     "drizzle-orm": "^0.39.3",
     "koa": "^2.13",
     "koa-bodyparser": "^4.3",
     "koa-compose": "^4.1.0",
+    "node-cron": "^3.0.3",
     "pg": "8.11.3"
   },
   "devDependencies": {
@@ -63,6 +66,7 @@
     "@types/koa": "^2.13",
     "@types/koa-bodyparser": "^4.3",
     "@types/koa__cors": "^3.3",
+    "@types/mailchimp__mailchimp_marketing": "^3",
     "@types/node": "^18.0.0",
     "@types/pg": "8.10.2",
     "@typescript-eslint/eslint-plugin": "^5.54.0",

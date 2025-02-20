@@ -173,12 +173,12 @@ describe("Faucet", () => {
         await faucet.credit(
           "test@example.com",
           "John Doe",
-          recipient, 
+          recipient,
           "ucosm",
           10000000,
           false,
           "US",
-          "F Corp"
+          "F Corp",
         );
 
         const readOnlyClient = await StargateClient.connect(apiUrl);
@@ -207,7 +207,7 @@ describe("Faucet", () => {
         await faucet.credit(
           "test@example.com",
           "John Doe",
-          recipient, 
+          recipient,
           "ustake",
           10000,
           false,

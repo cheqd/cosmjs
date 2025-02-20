@@ -12,6 +12,8 @@ version   Prints the version and exits
 
 generate  Generates a random mnemonic, shows derived faucet addresses and exits
 
+mail-sync Runs Mailchimp sync job immediately
+
 start     Starts the faucet
            1  Node base URL, e.g. http://localhost:1317
 

@@ -97,6 +97,64 @@ export class Webserver {
           }
           break;
         }
+        // Export requests to CSV
+        case "/export": {
+          if (context.request.method !== "GET") {
+            throw new HttpError(405, "This endpoint requires a GET request");
+          }
+
+          // Parse query parameters to sort by start and end date
+          const { startDate, endDate } = context.query;
+
+          const query = {
+            startDate: startDate as string,
+            endDate: endDate as string,
+          };
+
+          try {
+            const requests = await faucet.getRequests(query);
+
+            const csvRows = [
+              [
+                "Timestamp",
+                "Email",
+                "Name",
+                "Company",
+                "Distributor",
+                "Receiver",
+                "Amount",
+                "Denom",
+                "Country",
+                "Marketing Opt-in",
+                "Added to Mailchimp",
+              ].join(","),
+              ...requests.map((req) =>
+                [
+                  new Date(req.created_at).toISOString(),
+                  req.email_address,
+                  req.name,
+                  req.company || "",
+                  req.from_address,
+                  req.to_address,
+                  req.amount.toString(),
+                  req.denom,
+                  req.country,
+                  req.marketing_optin ? "Yes" : "No",
+                  req.mailchimp_synced ? "Yes" : "No",
+                ].join(","),
+              ),
+            ];
+
+            context.response.set("Content-Type", "text/csv");
+            context.response.set("Content-Disposition", "attachment; filename=requests.csv");
+
+            context.response.body = csvRows.join("\n");
+          } catch (error) {
+            console.error("Failed to export data:", error);
+            throw new HttpError(500, "Failed to export data");
+          }
+          break;
+        }
         default:
         // koa sends 404 by default
       }

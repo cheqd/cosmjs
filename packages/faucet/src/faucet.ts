@@ -218,4 +218,8 @@ export class Faucet {
   private getCreditCount(): number {
     return this.creditCount++;
   }
+
+  public async getRequests(query: { startDate?: string; endDate?: string }) {
+    return database.getRequests(query);
+  }
 }

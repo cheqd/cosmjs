@@ -1,5 +1,6 @@
 import { db, client } from "./client";
 import { requests } from "./schema";
+import { and, gte, lte } from "drizzle-orm";
 
 export interface FaucetRequest {
   email_address: string;
@@ -12,6 +13,11 @@ export interface FaucetRequest {
   denom: string;
   country: string;
   company?: string | null;
+}
+
+interface TimeFilter {
+  startDate?: string;
+  endDate?: string;
 }
 
 class DatabaseService {
@@ -33,6 +39,28 @@ class DatabaseService {
       await client.query("COMMIT");
     } catch (error) {
       await client.query("ROLLBACK");
+      throw error;
+    }
+  }
+
+  async getRequests(timeFilter?: TimeFilter): Promise<(typeof requests.$inferSelect)[]> {
+    try {
+      return await db
+        .select()
+        .from(requests)
+        .where(
+          timeFilter
+            ? and(
+                ...[
+                  timeFilter.startDate ? gte(requests.created_at, new Date(timeFilter.startDate)) : undefined,
+                  timeFilter.endDate ? lte(requests.created_at, new Date(timeFilter.endDate)) : undefined,
+                ].filter(Boolean),
+              )
+            : undefined,
+        )
+        .orderBy(requests.created_at);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
       throw error;
     }
   }

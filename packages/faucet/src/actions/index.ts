@@ -2,3 +2,4 @@ export { generate } from "./generate";
 export { help } from "./help";
 export { start } from "./start";
 export { version } from "./version";
+export { mailSync } from "./mail-sync";

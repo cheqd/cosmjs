@@ -1,4 +1,4 @@
-import { generate, help, start, version } from "./actions";
+import { generate, help, start, version, mailSync } from "./actions";
 
 export function main(args: readonly string[]): void {
   if (args.length < 1) {
@@ -27,6 +27,12 @@ export function main(args: readonly string[]): void {
       break;
     case "start":
       start(restArgs).catch((error) => {
+        console.error(error);
+        process.exit(1);
+      });
+      break;
+    case "mail-sync":
+      mailSync().catch((error) => {
         console.error(error);
         process.exit(1);
       });

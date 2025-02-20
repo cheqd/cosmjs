@@ -8,7 +8,7 @@ import * as constants from "../constants";
 import { Faucet } from "../faucet";
 import { HttpError } from "./httperror";
 import { RequestParser } from "./requestparser";
-import { DateValidationError } from "../database";
+import { DateValidationError } from "../utils/dates";
 
 /** This will be passed 1:1 to the user */
 export interface ChainConstants {
@@ -106,15 +106,10 @@ export class Webserver {
 
           // Parse query parameters to sort by start and end date
           const { startDate, endDate } = context.query;
-
-          const query = {
-            startDate: startDate as string,
-            endDate: endDate as string,
-          };
+          const query = { startDate: startDate as string, endDate: endDate as string };
 
           try {
             const requests = await faucet.getRequests(query);
-
             const csvRows = [
               [
                 "Timestamp",
@@ -148,14 +143,16 @@ export class Webserver {
 
             context.response.set("Content-Type", "text/csv");
             context.response.set("Content-Disposition", "attachment; filename=requests.csv");
-
             context.response.body = csvRows.join("\n");
           } catch (error) {
             console.error("Failed to export data:", error);
             if (error instanceof DateValidationError) {
               throw new HttpError(400, `Invalid date range: ${error.message}`);
             }
-            throw new HttpError(500, "Failed to export data: " + (error instanceof Error ? error.message : 'Unknown error'));
+            throw new HttpError(
+              500,
+              "Failed to export data: " + (error instanceof Error ? error.message : "Unknown error"),
+            );
           }
           break;
         }

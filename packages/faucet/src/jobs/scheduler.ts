@@ -1,5 +1,5 @@
-import cron from 'node-cron';
-import { MailchimpSyncJob } from './sync-mailchimp';
+import cron from "node-cron";
+import { MailchimpSyncJob } from "./sync-mailchimp";
 
 export class Scheduler {
   private job: MailchimpSyncJob;
@@ -9,9 +9,9 @@ export class Scheduler {
   }
 
   start() {
-    console.log('Starting Mailchimp sync scheduler...');
-    cron.schedule('0 0 * * *', async () => {
-      console.log('Starting Mailchimp sync job...');
+    console.log("Starting Mailchimp sync scheduler...");
+    cron.schedule("0 0 * * *", async () => {
+      console.log("Starting Mailchimp sync job...");
       await this.job.run();
     });
   }

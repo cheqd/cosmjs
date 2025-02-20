@@ -3,14 +3,14 @@ import { RequestParser } from "./requestparser";
 describe("RequestParser", () => {
   it("can process valid credit request with denom", () => {
     const body = { address: "abc", denom: "utkn" };
-    expect(RequestParser.parseCreditBody(body)).toEqual({ 
-      address: "abc", 
-      denom: "utkn", 
+    expect(RequestParser.parseCreditBody(body)).toEqual({
+      address: "abc",
+      denom: "utkn",
       amount: 1,
       email: "test@example.com",
       marketingOptin: false,
       name: "John Doe",
-      company: "F Corp"
+      company: "F Corp",
     });
   });
 
@@ -86,7 +86,7 @@ describe("RequestParser", () => {
         amount: 1,
         email: "test@example.com",
         marketingOptin: false,
-        country: "XX"
+        country: "XX",
       };
       expect(RequestParser.parseCreditBody(body)).toEqual(body);
     });

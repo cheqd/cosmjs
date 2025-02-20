@@ -25,15 +25,7 @@ export class RequestParser {
       throw new HttpError(400, "Request body must be a dictionary.");
     }
 
-    const { 
-      name,
-      company,
-      email,
-      address,
-      denom,
-      amount,
-      marketing_optin: marketingOptin,
-    } = body as any;
+    const { name, company, email, address, denom, amount, marketing_optin: marketingOptin } = body as any;
 
     if (typeof address !== "string") {
       throw new HttpError(400, "Property 'address' must be a string.");
@@ -50,7 +42,7 @@ export class RequestParser {
     if (denom.length === 0) {
       throw new HttpError(400, "Property 'denom' must not be empty.");
     }
-    
+
     if (typeof email !== "string") {
       throw new HttpError(400, "Property 'email' must be a string.");
     }
@@ -66,7 +58,7 @@ export class RequestParser {
     if (typeof marketingOptin !== "boolean") {
       throw new HttpError(400, "Property 'marketing_optin' must be a boolean.");
     }
-    
+
     if (typeof name !== "string") {
       throw new HttpError(400, "Property 'name' must be a string.");
     }
@@ -82,7 +74,7 @@ export class RequestParser {
       email,
       marketingOptin,
       name,
-      company
+      company,
     };
   }
 }

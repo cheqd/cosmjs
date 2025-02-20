@@ -5,7 +5,7 @@ import {
   StargateClient,
 } from "@cosmjs/stargate";
 import { isDefined, sleep } from "@cosmjs/utils";
-import { scheduler } from './jobs/scheduler';
+import { scheduler } from "./jobs/scheduler";
 
 import * as constants from "./constants";
 import { debugAccount, logAccountsState, logSendJob } from "./debugging";
@@ -14,7 +14,7 @@ import { createClients, createWallets } from "./profile";
 import { TokenConfiguration, TokenManager } from "./tokenmanager";
 import { MinimalAccount, SendJob } from "./types";
 import { Uint53 } from "@cosmjs/math";
-import { database , FaucetRequest } from "./database";
+import { database, FaucetRequest } from "./database";
 
 export class Faucet {
   public static async make(
@@ -32,7 +32,7 @@ export class Faucet {
 
     // Start the scheduler
     scheduler.start();
-    
+
     return new Faucet(addressPrefix, config, clients, readonlyClient, logging);
   }
 
@@ -104,7 +104,7 @@ export class Faucet {
     if (this.distributorAddresses.length === 0) {
       throw new Error("No distributor account available");
     }
-    
+
     const sender = this.distributorAddresses[this.getCreditCount() % this.distributorAddresses.length];
 
     const tokenAmount = this.tokenManager.creditAmount(denom, new Uint53(1), amount);
@@ -114,10 +114,10 @@ export class Faucet {
       amount: tokenAmount,
     };
     if (this.logging) logSendJob(job);
-    
+
     try {
       const result = await this.send(job);
-      
+
       const faucetRequest: FaucetRequest = {
         email_address: email,
         name: name,
@@ -128,7 +128,7 @@ export class Faucet {
         marketing_optin: marketingOptin,
         amount: BigInt(tokenAmount.amount),
         country: country,
-        company: company || ""
+        company: company || "",
       };
 
       await database.saveRequest(faucetRequest);

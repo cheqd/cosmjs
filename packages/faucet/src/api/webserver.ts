@@ -20,7 +20,7 @@ export class Webserver {
   private readonly addressCounter = new Map<string, Date>();
 
   private getCountryFromRequest(context: Context): string {
-    return context.get('CF-IPCountry') || 'XX';
+    return context.get("CF-IPCountry") || "XX";
   }
 
   public constructor(faucet: Faucet, chainConstants: ChainConstants) {
@@ -89,16 +89,7 @@ export class Webserver {
 
           try {
             this.addressCounter.set(address, new Date());
-            await faucet.credit(
-              email,
-              name,
-              address,
-              denom,
-              amount,
-              marketingOptin,
-              country,
-              company
-            );
+            await faucet.credit(email, name, address, denom, amount, marketingOptin, country, company);
             context.response.body = { status: "ok" };
           } catch (error) {
             console.error("Failed to process credit request:", error);

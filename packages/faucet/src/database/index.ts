@@ -1,5 +1,5 @@
-import { db, client } from './client';
-import { requests } from './schema';
+import { db, client } from "./client";
+import { requests } from "./schema";
 
 export interface FaucetRequest {
   email_address: string;
@@ -16,7 +16,7 @@ export interface FaucetRequest {
 
 class DatabaseService {
   async saveRequest(request: FaucetRequest): Promise<void> {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
     try {
       await db.insert(requests).values({
         email_address: request.email_address,
@@ -30,12 +30,12 @@ class DatabaseService {
         country: request.country,
         company: request.company || null,
       });
-      await client.query('COMMIT');
+      await client.query("COMMIT");
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw error;
     }
   }
 }
 
-export const database = new DatabaseService(); 
+export const database = new DatabaseService();

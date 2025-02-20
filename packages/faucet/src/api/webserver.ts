@@ -8,6 +8,7 @@ import * as constants from "../constants";
 import { Faucet } from "../faucet";
 import { HttpError } from "./httperror";
 import { RequestParser } from "./requestparser";
+import { DateValidationError } from "../database";
 
 /** This will be passed 1:1 to the user */
 export interface ChainConstants {
@@ -151,7 +152,10 @@ export class Webserver {
             context.response.body = csvRows.join("\n");
           } catch (error) {
             console.error("Failed to export data:", error);
-            throw new HttpError(500, "Failed to export data");
+            if (error instanceof DateValidationError) {
+              throw new HttpError(400, `Invalid date range: ${error.message}`);
+            }
+            throw new HttpError(500, "Failed to export data: " + (error instanceof Error ? error.message : 'Unknown error'));
           }
           break;
         }

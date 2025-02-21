@@ -9,6 +9,7 @@ import { Faucet } from "../faucet";
 import { HttpError } from "./httperror";
 import { RequestParser } from "./requestparser";
 import { DateValidationError } from "../utils/dates";
+import { getExportFilename } from "../utils/csv";
 
 /** This will be passed 1:1 to the user */
 export interface ChainConstants {
@@ -98,10 +99,7 @@ export class Webserver {
         ),
       ];
 
-      const dateRange = query.startDate && query.endDate 
-        ? `${query.startDate}-to-${query.endDate}`
-        : 'all-time';
-      const filename = `faucet-requests-${dateRange}.csv`;
+      const filename = getExportFilename(query.startDate, query.endDate);
       
       context.response.set({
         "Content-Type": "text/csv; charset=utf-8",

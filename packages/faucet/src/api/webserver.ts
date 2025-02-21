@@ -32,12 +32,12 @@ export class Webserver {
 
   private validateExportQuery(query: unknown): ExportRequestQuery {
     const { startDate, endDate } = query as Record<string, unknown>;
-    
+
     // Check if dates are strings or undefined
-    if (startDate !== undefined && typeof startDate !== 'string') {
+    if (startDate !== undefined && typeof startDate !== "string") {
       throw new HttpError(400, "startDate must be a string");
     }
-    if (endDate !== undefined && typeof endDate !== 'string') {
+    if (endDate !== undefined && typeof endDate !== "string") {
       throw new HttpError(400, "endDate must be a string");
     }
 
@@ -50,7 +50,7 @@ export class Webserver {
     }
     const stringField = String(field);
     // If field contains comma, quotes, or newlines, wrap in quotes and escape existing quotes
-    if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+    if (stringField.includes(",") || stringField.includes('"') || stringField.includes("\n")) {
       return `"${stringField.replace(/"/g, '""')}"`;
     }
     return stringField;
@@ -65,7 +65,7 @@ export class Webserver {
 
     try {
       const requests = await faucet.getRequests(query);
-      
+
       const headers = [
         "Timestamp",
         "Email",
@@ -100,17 +100,16 @@ export class Webserver {
       ];
 
       const filename = getExportFilename(query.startDate, query.endDate);
-      
+
       context.response.set({
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": `attachment; filename=${filename}`,
         // Prevent caching of export data
         "Cache-Control": "no-store, max-age=0",
-        "Pragma": "no-cache"
+        Pragma: "no-cache",
       });
-      
-      context.response.body = csvRows.join("\n");
 
+      context.response.body = csvRows.join("\n");
     } catch (error) {
       console.error("Failed to export data:", error);
 

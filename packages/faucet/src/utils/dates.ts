@@ -18,9 +18,7 @@ export function normalizeDate(dateStr: string): Date {
   const date = new Date(dateStr);
 
   if (isNaN(date.getTime())) {
-    throw new DateValidationError(
-      `Invalid date format: ${dateStr}. Expected YYYY-MM-DD or ISO 8601 format.`
-    );
+    throw new DateValidationError(`Invalid date format: ${dateStr}. Expected YYYY-MM-DD or ISO 8601 format.`);
   }
 
   return date;
@@ -43,10 +41,7 @@ export function getDefaultDateRange(): { start: Date; end: Date } {
  * - Both dates: validates start is before end
  * @throws DateValidationError if dates are invalid
  */
-export function validateDateRange(
-  startDate?: string,
-  endDate?: string
-): { start: Date; end: Date } {
+export function validateDateRange(startDate?: string, endDate?: string): { start: Date; end: Date } {
   // Case 1: No dates provided - return last 30 days
   if (!startDate && !endDate) {
     return getDefaultDateRange();
@@ -61,7 +56,7 @@ export function validateDateRange(
     start = normalizeDate(startDate);
     if (start > now) {
       throw new DateValidationError(
-        `Start date (${startDate}) cannot be in the future. Current UTC time is ${now.toISOString()}`
+        `Start date (${startDate}) cannot be in the future. Current UTC time is ${now.toISOString()}`,
       );
     }
     end = now;
@@ -74,14 +69,12 @@ export function validateDateRange(
     end = normalizeDate(endDate);
 
     if (start > end) {
-      throw new DateValidationError(
-        `Start date (${startDate}) must be before end date (${endDate})`
-      );
+      throw new DateValidationError(`Start date (${startDate}) must be before end date (${endDate})`);
     }
 
     if (end > now) {
       throw new DateValidationError(
-        `End date (${endDate}) cannot be in the future. Current UTC time is ${now.toISOString()}`
+        `End date (${endDate}) cannot be in the future. Current UTC time is ${now.toISOString()}`,
       );
     }
 
@@ -92,11 +85,11 @@ export function validateDateRange(
   end = endDate ? normalizeDate(endDate) : now;
   if (end > now) {
     throw new DateValidationError(
-      `End date (${endDate}) cannot be in the future. Current UTC time is ${now.toISOString()}`
+      `End date (${endDate}) cannot be in the future. Current UTC time is ${now.toISOString()}`,
     );
   }
   start = new Date(end);
   start.setDate(end.getDate() - 30);
-  
+
   return { start, end };
 }

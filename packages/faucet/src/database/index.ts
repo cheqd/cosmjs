@@ -1,5 +1,12 @@
 import { db, client } from "./client";
 import { requests } from "./schema";
+import { and, gte, lte } from "drizzle-orm";
+import { validateDateRange } from "../utils/dates";
+
+export interface TimeFilter {
+  startDate?: string;
+  endDate?: string;
+}
 
 export interface FaucetRequest {
   email_address: string;
@@ -33,6 +40,21 @@ class DatabaseService {
       await client.query("COMMIT");
     } catch (error) {
       await client.query("ROLLBACK");
+      throw error;
+    }
+  }
+
+  async getRequests(timeFilter?: TimeFilter): Promise<(typeof requests.$inferSelect)[]> {
+    try {
+      const { start, end } = validateDateRange(timeFilter?.startDate, timeFilter?.endDate);
+
+      return await db
+        .select()
+        .from(requests)
+        .where(and(gte(requests.created_at, start), lte(requests.created_at, end)))
+        .orderBy(requests.created_at);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
       throw error;
     }
   }

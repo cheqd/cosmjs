@@ -8,11 +8,18 @@ import * as constants from "../constants";
 import { Faucet } from "../faucet";
 import { HttpError } from "./httperror";
 import { RequestParser } from "./requestparser";
+import { DateValidationError } from "../utils/dates";
+import { getExportFilename } from "../utils/csv";
 
 /** This will be passed 1:1 to the user */
 export interface ChainConstants {
   readonly nodeUrl: string;
   readonly chainId: string;
+}
+
+interface ExportRequestQuery {
+  startDate?: string;
+  endDate?: string;
 }
 
 export class Webserver {
@@ -21,6 +28,100 @@ export class Webserver {
 
   private getCountryFromRequest(context: Context): string {
     return context.get("CF-IPCountry") || "XX";
+  }
+
+  private validateExportQuery(query: unknown): ExportRequestQuery {
+    const { startDate, endDate } = query as Record<string, unknown>;
+
+    // Check if dates are strings or undefined
+    if (startDate !== undefined && typeof startDate !== "string") {
+      throw new HttpError(400, "startDate must be a string");
+    }
+    if (endDate !== undefined && typeof endDate !== "string") {
+      throw new HttpError(400, "endDate must be a string");
+    }
+
+    return { startDate, endDate };
+  }
+
+  private sanitizeCsvField(field: string | number | boolean | null | undefined): string {
+    if (field === null || field === undefined) {
+      return "";
+    }
+    const stringField = String(field);
+    // If field contains comma, quotes, or newlines, wrap in quotes and escape existing quotes
+    if (stringField.includes(",") || stringField.includes('"') || stringField.includes("\n")) {
+      return `"${stringField.replace(/"/g, '""')}"`;
+    }
+    return stringField;
+  }
+
+  private async handleExportRequest(context: Context, faucet: Faucet): Promise<void> {
+    if (context.request.method !== "GET") {
+      throw new HttpError(405, "This endpoint requires a GET request", false);
+    }
+
+    const query = this.validateExportQuery(context.query);
+
+    try {
+      const requests = await faucet.getRequests(query);
+
+      const headers = [
+        "Timestamp",
+        "Email",
+        "Name",
+        "Company",
+        "Distributor",
+        "Receiver",
+        "Amount",
+        "Denom",
+        "Country",
+        "Marketing Opt-in",
+        "Added to Mailchimp",
+      ];
+
+      const csvRows = [
+        headers.join(","),
+        ...requests.map((req) =>
+          [
+            this.sanitizeCsvField(new Date(req.created_at).toISOString()),
+            this.sanitizeCsvField(req.email_address),
+            this.sanitizeCsvField(req.name),
+            this.sanitizeCsvField(req.company),
+            this.sanitizeCsvField(req.from_address),
+            this.sanitizeCsvField(req.to_address),
+            this.sanitizeCsvField(req.amount.toString()),
+            this.sanitizeCsvField(req.denom),
+            this.sanitizeCsvField(req.country),
+            this.sanitizeCsvField(req.marketing_optin ? "Yes" : "No"),
+            this.sanitizeCsvField(req.mailchimp_synced ? "Yes" : "No"),
+          ].join(","),
+        ),
+      ];
+
+      const filename = getExportFilename(query.startDate, query.endDate);
+
+      context.response.set({
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename=${filename}`,
+        // Prevent caching of export data
+        "Cache-Control": "no-store, max-age=0",
+        Pragma: "no-cache",
+      });
+
+      context.response.body = csvRows.join("\n");
+    } catch (error) {
+      console.error("Failed to export data:", error);
+
+      if (error instanceof DateValidationError) {
+        // Date validation errors are safe to expose to users
+        throw new HttpError(400, `Invalid date range: ${error.message}`, true);
+      }
+
+      // For database or other errors, log details but return generic message
+      console.error("Export error details:", error);
+      throw new HttpError(500, "Failed to export data. Please try again later.", false);
+    }
   }
 
   public constructor(faucet: Faucet, chainConstants: ChainConstants) {
@@ -97,6 +198,9 @@ export class Webserver {
           }
           break;
         }
+        case "/export":
+          await this.handleExportRequest(context, faucet);
+          break;
         default:
         // koa sends 404 by default
       }

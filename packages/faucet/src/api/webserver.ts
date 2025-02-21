@@ -9,7 +9,6 @@ import { Faucet } from "../faucet";
 import { HttpError } from "./httperror";
 import { RequestParser } from "./requestparser";
 import { DateValidationError } from "../utils/dates";
-import { TimeFilter } from "../database";
 
 /** This will be passed 1:1 to the user */
 export interface ChainConstants {

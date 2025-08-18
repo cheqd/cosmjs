@@ -145,6 +145,7 @@ export class Faucet {
           name: name,
           company: company,
           country: country,
+          address: toAddress
         }),
       });
     } catch (error) {

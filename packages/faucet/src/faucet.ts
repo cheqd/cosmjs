@@ -131,7 +131,22 @@ export class Faucet {
         company: company || "",
       };
 
+      // Save request info into database
       await database.saveRequest(faucetRequest);
+
+      // Trigger Zapier webhook to save request info into Pipedrive
+      await fetch(constants.zapierWebhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          company: company,
+          country: country,
+        }),
+      });
     } catch (error) {
       console.error("Failed to process credit request:", error);
       throw error;

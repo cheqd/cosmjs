@@ -135,19 +135,26 @@ export class Faucet {
       await database.saveRequest(faucetRequest);
 
       // Trigger Zapier webhook to save request info into Pipedrive
-      await fetch(constants.zapierWebhookUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          name: name,
-          company: company,
-          country: country,
-          address: toAddress
-        }),
-      });
+      const webhookUrl = constants.zapierWebhookUrl;
+      if (webhookUrl) {
+        try {
+          await fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: email,
+              name: name,
+              company: company,
+              country: country,
+              address: toAddress,
+            }),
+          });
+        } catch (error) {
+          console.error("Zapier webhook not defined:", error);
+        }
+      }
     } catch (error) {
       console.error("Failed to process credit request:", error);
       throw error;

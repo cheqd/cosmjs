@@ -6,6 +6,7 @@ import {
 } from "@cosmjs/stargate";
 import { isDefined, sleep } from "@cosmjs/utils";
 import { scheduler } from "./jobs/scheduler";
+import { MailchimpService } from "./jobs/sync-mailchimp";
 
 import * as constants from "./constants";
 import { debugAccount, logAccountsState, logSendJob } from "./debugging";
@@ -133,6 +134,17 @@ export class Faucet {
 
       // Save request info into database
       await database.saveRequest(faucetRequest);
+
+      // Trigger Mailchimp flow (upsert subscriber with tags only; no scheduler/job run here)
+      if (company !== 'Requested via cheqd Studio') {
+        try {
+          const mailchimpService = new MailchimpService();
+          const tags: string[] = ["Testnet-Faucet"];
+          await mailchimpService.upsertSubscriberWithTags(email, name, company, tags);
+        } catch (error) {
+          console.error("Mailchimp flow failed:", error);
+        }
+      }
 
       // Trigger Zapier webhook to save request info into Pipedrive
       const webhookUrl = constants.zapierWebhookUrl;

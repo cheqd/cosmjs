@@ -3,6 +3,7 @@ import { requests } from "../database/schema";
 import { eq, and } from "drizzle-orm";
 import mailchimp from "@mailchimp/mailchimp_marketing";
 import { ErrorResponse as MailchimpError } from "mailchimp__mailchimp_marketing";
+import { createHash } from "crypto";
 
 export class MailchimpService {
   constructor() {
@@ -48,6 +49,41 @@ export class MailchimpService {
             timestamp: new Date().toISOString(),
           },
         }),
+      );
+    }
+  }
+
+  async upsertSubscriberWithTags(
+    email: string,
+    name: string,
+    company: string | null | undefined,
+    tags: readonly string[],
+  ): Promise<void> {
+    if (!process.env.MAILCHIMP_LIST_ID) {
+      throw new Error("Mailchimp list ID is missing");
+    }
+
+    const listId = process.env.MAILCHIMP_LIST_ID;
+    const normalizedEmail = email.trim().toLowerCase();
+    const subscriberHash = createHash("md5").update(normalizedEmail).digest("hex");
+
+    // Upsert the member (creates if not exists, updates if exists)
+    await mailchimp.lists.setListMember(listId, subscriberHash, {
+      email_address: normalizedEmail,
+      status_if_new: "subscribed",
+      merge_fields: {
+        FNAME: name,
+        ...(company && { COMPANY: company }),
+      },
+    });
+
+    if (tags.length > 0) {
+      await mailchimp.lists.updateListMemberTags(
+        listId,
+        subscriberHash,
+        {
+          tags: tags.map((t) => ({ name: t, status: "active" as const })),
+        },
       );
     }
   }

@@ -78,13 +78,24 @@ export class MailchimpService {
     });
 
     if (tags.length > 0) {
-      await mailchimp.lists.updateListMemberTags(
-        listId,
-        subscriberHash,
-        {
-          tags: tags.map((t) => ({ name: t, status: "active" as const })),
-        },
+      // Add tags to the subscriber
+      const current = (await mailchimp.lists.getListMemberTags(listId, subscriberHash)) as any;
+      const existingActive = new Set<string>(
+        (current?.tags ?? [])
+          .filter((t: any) => t.status === "active")
+          .map((t: any) => t.name as string),
       );
+
+      const missing = tags.filter((t) => !existingActive.has(t));
+      if (missing.length > 0) {
+        await mailchimp.lists.updateListMemberTags(
+          listId,
+          subscriberHash,
+          {
+            tags: missing.map((t) => ({ name: t, status: "active" as const })),
+          },
+        );
+      }
     }
   }
 }

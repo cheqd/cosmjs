@@ -6,7 +6,7 @@ import {
 } from "@cosmjs/stargate";
 import { isDefined, sleep } from "@cosmjs/utils";
 import { scheduler } from "./jobs/scheduler";
-import { MailchimpService } from "./jobs/sync-mailchimp";
+import { MailchimpService } from "./jobs/mailchimp";
 
 import * as constants from "./constants";
 import { debugAccount, logAccountsState, logSendJob } from "./debugging";
@@ -133,14 +133,25 @@ export class Faucet {
       };
 
       // Save request info into database
-      await database.saveRequest(faucetRequest);
+      const requestId = await database.saveRequest(faucetRequest);
 
-      // Trigger Mailchimp flow (upsert subscriber with tags only; no scheduler/job run here)
+      // Trigger Mailchimp flows immediately after successful credit
       if (company !== 'Requested via cheqd Studio') {
         try {
           const mailchimpService = new MailchimpService();
-          const tags: string[] = ["Testnet-Faucet"];
-          await mailchimpService.upsertSubscriberWithTags(email, name, company, tags);
+          const productListId = process.env.MAILCHIMP_PRODUCT_LIST_ID;
+          if (productListId) {
+            const tags: string[] = ["Testnet-Faucet"];
+            await mailchimpService.upsertSubscriber(productListId, email, name, requestId, company, tags);
+          }
+
+          // If user opted into newsletter, add to newsletter audience (no tags)
+          if (marketingOptin) {
+            const newsletterListId = process.env.MAILCHIMP_NEWSLETTER_LIST_ID;
+            if (newsletterListId) {
+              await mailchimpService.upsertSubscriber(newsletterListId, email, name, requestId, company);
+            }
+          }
         } catch (error) {
           console.error("Mailchimp flow failed:", error);
         }

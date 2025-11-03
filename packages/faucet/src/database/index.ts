@@ -22,10 +22,10 @@ export interface FaucetRequest {
 }
 
 class DatabaseService {
-  async saveRequest(request: FaucetRequest): Promise<void> {
+  async saveRequest(request: FaucetRequest): Promise<number> {
     await client.query("BEGIN");
     try {
-      await db.insert(requests).values({
+      const inserted = await db.insert(requests).values({
         email_address: request.email_address,
         name: request.name,
         from_address: request.from_address,
@@ -36,8 +36,9 @@ class DatabaseService {
         denom: request.denom,
         country: request.country,
         company: request.company || null,
-      });
+      }).returning({ id: requests.id });
       await client.query("COMMIT");
+      return inserted[0]!.id;
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;

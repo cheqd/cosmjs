@@ -21,7 +21,14 @@ export async function syncNewsletterContacts(): Promise<void> {
 
     for (const user of marketingUsers) {
       try {
-        await upsertSubscriber(listId, user.email_address, user.name, user.id, user.company ?? null);
+        await upsertSubscriber(
+          listId,
+          user.email_address,
+          user.first_name,
+          user.last_name,
+          user.id,
+          user.company ?? null,
+        );
       } catch (error) {
         console.error(`Failed to sync user ${user.email_address} to Mailchimp:`, error);
       }

@@ -172,7 +172,8 @@ describe("Faucet", () => {
         const recipient = makeRandomAddress();
         await faucet.credit(
           "test@example.com",
-          "John Doe",
+          "John",
+          "Doe",
           recipient,
           "ucosm",
           10000000,
@@ -206,7 +207,8 @@ describe("Faucet", () => {
         const recipient = makeRandomAddress();
         await faucet.credit(
           "test@example.com",
-          "John Doe",
+          "John",
+          "Doe",
           recipient,
           "ustake",
           10000,

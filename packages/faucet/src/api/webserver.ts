@@ -2,6 +2,7 @@ import Koa from "koa";
 import cors = require("@koa/cors");
 import bodyParser from "koa-bodyparser";
 import { Context } from "koa";
+import { timingSafeEqual } from "crypto";
 
 import { isValidAddress } from "../addresses";
 import * as constants from "../constants";
@@ -10,6 +11,8 @@ import { HttpError } from "./httperror";
 import { RequestParser } from "./requestparser";
 import { DateValidationError } from "../utils/dates";
 import { getExportFilename } from "../utils/csv";
+import { database } from "../database";
+import { emailService } from "../services/email";
 
 /** This will be passed 1:1 to the user */
 export interface ChainConstants {
@@ -28,6 +31,35 @@ export class Webserver {
 
   private getCountryFromRequest(context: Context): string {
     return context.get("CF-IPCountry") || "XX";
+  }
+
+  private requireApiKey(context: Context): void {
+
+    const headerApiKey = context.get("x-api-key") || (context.headers["x-api-key"] as string | undefined);
+    const headerAuth = context.get("authorization") || (context.headers["authorization"] as string | undefined);
+
+    let providedKey: string | undefined;
+    if (headerApiKey && headerApiKey.trim().length > 0) {
+      providedKey = headerApiKey.trim();
+    } else if (headerAuth && headerAuth.trim().length > 0) {
+      providedKey = headerAuth.replace(/^Bearer\s+/i, "").trim();
+    }
+
+    if (!providedKey) {
+      throw new HttpError(401, "Missing API key");
+    }
+
+    // Use constant-time comparison to prevent timing attacks
+    if (providedKey.length !== constants.apiKey.length) {
+      throw new HttpError(403, "Invalid API key");
+    }
+
+    const providedKeyBuffer = Buffer.from(providedKey, "utf8");
+    const expectedKeyBuffer = Buffer.from(constants.apiKey, "utf8");
+
+    if (!timingSafeEqual(providedKeyBuffer, expectedKeyBuffer)) {
+      throw new HttpError(403, "Invalid API key");
+    }
   }
 
   private validateExportQuery(query: unknown): ExportRequestQuery {
@@ -69,7 +101,8 @@ export class Webserver {
       const headers = [
         "Timestamp",
         "Email",
-        "Name",
+        "FirstName",
+        "LastName",
         "Company",
         "Distributor",
         "Receiver",
@@ -86,7 +119,8 @@ export class Webserver {
           [
             this.sanitizeCsvField(new Date(req.created_at).toISOString()),
             this.sanitizeCsvField(req.email_address),
-            this.sanitizeCsvField(req.name),
+            this.sanitizeCsvField(req.first_name),
+            this.sanitizeCsvField(req.last_name),
             this.sanitizeCsvField(req.company),
             this.sanitizeCsvField(req.from_address),
             this.sanitizeCsvField(req.to_address),
@@ -128,7 +162,7 @@ export class Webserver {
     this.api.use(cors());
     this.api.use(bodyParser());
 
-    this.api.use(async (context) => {
+    this.api.use(async (context: Context) => {
       switch (context.path) {
         case "/":
         case "/healthz":
@@ -153,7 +187,60 @@ export class Webserver {
           };
           break;
         }
+        case "/email/request-otp": {
+          this.requireApiKey(context);
+          if (context.request.method !== "POST") {
+            throw new HttpError(405, "Method not allowed");
+          }
+
+          if (context.request.type !== "application/json") {
+            throw new HttpError(415, "Content-type application/json expected");
+          }
+
+          const requestBody = (context.request as any).body;
+          const { email } = RequestParser.parseRequestOTPBody(requestBody);
+
+          try {
+            const otpCode = await database.createEmailVerification(email);
+            await emailService.sendOTP(email, otpCode);
+            context.response.body = { status: "ok", message: "OTP sent successfully" };
+          } catch (error) {
+            console.error("Failed to send OTP:", error);
+            throw new HttpError(500, "Failed to send OTP. Please try again later.");
+          }
+          break;
+        }
+        case "/email/verify-otp": {
+          this.requireApiKey(context);
+          if (context.request.method !== "POST") {
+            throw new HttpError(405, "Method not allowed");
+          }
+
+          if (context.request.type !== "application/json") {
+            throw new HttpError(415, "Content-type application/json expected");
+          }
+
+          const requestBody = (context.request as any).body;
+          const { email, otp } = RequestParser.parseVerifyOTPBody(requestBody);
+
+          try {
+            const isValid = await database.verifyOTP(email, otp);
+            if (isValid) {
+              context.response.body = { status: "ok", message: "Email verified successfully" };
+            } else {
+              throw new HttpError(400, "Invalid or expired OTP code");
+            }
+          } catch (error) {
+            if (error instanceof HttpError) {
+              throw error;
+            }
+            console.error("Failed to verify OTP:", error);
+            throw new HttpError(500, "Failed to verify OTP. Please try again later.");
+          }
+          break;
+        }
         case "/credit": {
+          this.requireApiKey(context);
           if (context.request.method !== "POST") {
             throw new HttpError(405, "This endpoint requires a POST request");
           }
@@ -164,8 +251,21 @@ export class Webserver {
 
           const requestBody = (context.request as any).body;
           const creditBody = RequestParser.parseCreditBody(requestBody);
-          const { address, denom, amount, email, marketingOptin, name, company } = creditBody;
+          const { address, denom, amount, email, marketingOptin, firstName, lastName, company } = creditBody;
           const country = this.getCountryFromRequest(context);
+
+          // Auto-verify email for cheqd Studio requests, otherwise require email verification
+          const isCheqdStudioRequest = company === "Requested via cheqd Studio";
+          if (isCheqdStudioRequest) {
+            // Automatically verify email for cheqd Studio requests
+            await database.autoVerifyEmail(email);
+          } else {
+            // Check if email is verified for regular requests
+            const isEmailVerified = await database.isEmailVerified(email);
+            if (!isEmailVerified) {
+              throw new HttpError(403, "Email address must be verified before requesting tokens. Please verify your email first.");
+            }
+          }
 
           if (!isValidAddress(address, constants.addressPrefix)) {
             throw new HttpError(400, "Address is not in the expected format for this chain.");
@@ -190,7 +290,7 @@ export class Webserver {
 
           try {
             this.addressCounter.set(address, new Date());
-            await faucet.credit(email, name, address, denom, amount, marketingOptin, country, company);
+            await faucet.credit(email, firstName, lastName, address, denom, amount, marketingOptin, country, company);
             context.response.body = { status: "ok" };
           } catch (error) {
             console.error("Failed to process credit request:", error);

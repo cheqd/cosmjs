@@ -522,6 +522,18 @@ const RAW_RUNTIME_STATE =
       "npm:1.1.0"\
     ],\
     [\
+      "@sendgrid/client",\
+      "npm:8.1.6"\
+    ],\
+    [\
+      "@sendgrid/helpers",\
+      "npm:8.0.0"\
+    ],\
+    [\
+      "@sendgrid/mail",\
+      "npm:8.1.6"\
+    ],\
+    [\
       "@socket.io/component-emitter",\
       "npm:3.1.0"\
     ],\
@@ -1236,6 +1248,10 @@ const RAW_RUNTIME_STATE =
     [\
       "deep-is",\
       "npm:0.1.3"\
+    ],\
+    [\
+      "deepmerge",\
+      "npm:4.3.1"\
     ],\
     [\
       "default-require-extensions",\
@@ -3797,13 +3813,14 @@ const RAW_RUNTIME_STATE =
           ["@istanbuljs/nyc-config-typescript", "virtual:4f1584ad4aba8733a24be7c8aebbffafef25607f2d00f4b314cf96717145c692763628a31c2b85d4686fbb091ff21ebffa3cc337399c042c19a32b9bdb786464#npm:1.0.1"],\
           ["@koa/cors", "npm:3.3.0"],\
           ["@mailchimp/mailchimp_marketing", "npm:3.0.80"],\
+          ["@sendgrid/mail", "npm:8.1.6"],\
           ["@types/eslint-plugin-prettier", "npm:3.1.0"],\
           ["@types/jasmine", "npm:4.6.1"],\
           ["@types/koa", "npm:2.13.4"],\
           ["@types/koa-bodyparser", "npm:4.3.7"],\
           ["@types/koa__cors", "npm:3.3.0"],\
           ["@types/mailchimp__mailchimp_marketing", "npm:3.0.21"],\
-          ["@types/node", "npm:18.19.76"],\
+          ["@types/node", "npm:24.10.1"],\
           ["@types/node-cron", "npm:3.0.11"],\
           ["@types/pg", "npm:8.10.2"],\
           ["@typescript-eslint/eslint-plugin", "virtual:4f1584ad4aba8733a24be7c8aebbffafef25607f2d00f4b314cf96717145c692763628a31c2b85d4686fbb091ff21ebffa3cc337399c042c19a32b9bdb786464#npm:5.54.0"],\
@@ -5137,6 +5154,38 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@sendgrid/client", [\
+      ["npm:8.1.6", {\
+        "packageLocation": "./.yarn/cache/@sendgrid-client-npm-8.1.6-49106db2ab-2d17a9e508.zip/node_modules/@sendgrid/client/",\
+        "packageDependencies": [\
+          ["@sendgrid/client", "npm:8.1.6"],\
+          ["@sendgrid/helpers", "npm:8.0.0"],\
+          ["axios", "npm:1.13.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@sendgrid/helpers", [\
+      ["npm:8.0.0", {\
+        "packageLocation": "./.yarn/cache/@sendgrid-helpers-npm-8.0.0-62d213772e-e7f341099c.zip/node_modules/@sendgrid/helpers/",\
+        "packageDependencies": [\
+          ["@sendgrid/helpers", "npm:8.0.0"],\
+          ["deepmerge", "npm:4.3.1"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@sendgrid/mail", [\
+      ["npm:8.1.6", {\
+        "packageLocation": "./.yarn/cache/@sendgrid-mail-npm-8.1.6-6ac3ee1b9d-593d69074a.zip/node_modules/@sendgrid/mail/",\
+        "packageDependencies": [\
+          ["@sendgrid/mail", "npm:8.1.6"],\
+          ["@sendgrid/client", "npm:8.1.6"],\
+          ["@sendgrid/helpers", "npm:8.0.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["@socket.io/component-emitter", [\
       ["npm:3.1.0", {\
         "packageLocation": "./.yarn/cache/@socket.io-component-emitter-npm-3.1.0-3f778351c2-b838ccccf7.zip/node_modules/@socket.io/component-emitter/",\
@@ -5586,19 +5635,19 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@types/node", [\
-      ["npm:18.19.76", {\
-        "packageLocation": "./.yarn/cache/@types-node-npm-18.19.76-2ccce654bf-211250b264.zip/node_modules/@types/node/",\
-        "packageDependencies": [\
-          ["@types/node", "npm:18.19.76"],\
-          ["undici-types", "npm:5.26.5"]\
-        ],\
-        "linkType": "HARD"\
-      }],\
       ["npm:22.10.6", {\
         "packageLocation": "./.yarn/cache/@types-node-npm-22.10.6-28326d30fa-8b67affc21.zip/node_modules/@types/node/",\
         "packageDependencies": [\
           ["@types/node", "npm:22.10.6"],\
           ["undici-types", "npm:6.20.0"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
+      ["npm:24.10.1", {\
+        "packageLocation": "./.yarn/cache/@types-node-npm-24.10.1-d514f50dfd-d6bca7a78f.zip/node_modules/@types/node/",\
+        "packageDependencies": [\
+          ["@types/node", "npm:24.10.1"],\
+          ["undici-types", "npm:7.16.0"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -7242,6 +7291,16 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["axios", [\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/axios-npm-1.13.2-90e3ae8f5d-e8a42e37e5.zip/node_modules/axios/",\
+        "packageDependencies": [\
+          ["axios", "npm:1.13.2"],\
+          ["follow-redirects", "virtual:90e3ae8f5d1081a2ebe4b7d99c8598618635aa223fffb3774885e7f413ad9bd6e2700dac780ec12f15baa5a1a39c5137b65b9a0b781e508a9f050aac6152f2f5#npm:1.15.11"],\
+          ["form-data", "npm:4.0.4"],\
+          ["proxy-from-env", "npm:1.1.0"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
       ["npm:1.6.2", {\
         "packageLocation": "./.yarn/cache/axios-npm-1.6.2-2334cb6eee-9b77e030e8.zip/node_modules/axios/",\
         "packageDependencies": [\
@@ -8158,6 +8217,15 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/deep-is-npm-0.1.3-0941784645-f4e21bf6fb.zip/node_modules/deep-is/",\
         "packageDependencies": [\
           ["deep-is", "npm:0.1.3"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["deepmerge", [\
+      ["npm:4.3.1", {\
+        "packageLocation": "./.yarn/cache/deepmerge-npm-4.3.1-4f751a0844-e53481aaf1.zip/node_modules/deepmerge/",\
+        "packageDependencies": [\
+          ["deepmerge", "npm:4.3.1"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -9531,12 +9599,32 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["follow-redirects", [\
+      ["npm:1.15.11", {\
+        "packageLocation": "./.yarn/cache/follow-redirects-npm-1.15.11-ae7b2db266-d301f43054.zip/node_modules/follow-redirects/",\
+        "packageDependencies": [\
+          ["follow-redirects", "npm:1.15.11"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
       ["npm:1.15.3", {\
         "packageLocation": "./.yarn/cache/follow-redirects-npm-1.15.3-ca69c47b72-915a2cf22e.zip/node_modules/follow-redirects/",\
         "packageDependencies": [\
           ["follow-redirects", "npm:1.15.3"]\
         ],\
         "linkType": "SOFT"\
+      }],\
+      ["virtual:90e3ae8f5d1081a2ebe4b7d99c8598618635aa223fffb3774885e7f413ad9bd6e2700dac780ec12f15baa5a1a39c5137b65b9a0b781e508a9f050aac6152f2f5#npm:1.15.11", {\
+        "packageLocation": "./.yarn/__virtual__/follow-redirects-virtual-de41ee3d23/0/cache/follow-redirects-npm-1.15.11-ae7b2db266-d301f43054.zip/node_modules/follow-redirects/",\
+        "packageDependencies": [\
+          ["follow-redirects", "virtual:90e3ae8f5d1081a2ebe4b7d99c8598618635aa223fffb3774885e7f413ad9bd6e2700dac780ec12f15baa5a1a39c5137b65b9a0b781e508a9f050aac6152f2f5#npm:1.15.11"],\
+          ["@types/debug", null],\
+          ["debug", null]\
+        ],\
+        "packagePeers": [\
+          "@types/debug",\
+          "debug"\
+        ],\
+        "linkType": "HARD"\
       }],\
       ["virtual:a313c479c5c7e54d9ec8fbeeea69ff640f56b8989ea2dff42351a3fa5c4061fb80a52d8ede0f0826a181a216820c2d2c3f15da881e7fdf31cef1c446e42f0c45#npm:1.15.3", {\
         "packageLocation": "./.yarn/__virtual__/follow-redirects-virtual-ff48ff82c1/0/cache/follow-redirects-npm-1.15.3-ca69c47b72-915a2cf22e.zip/node_modules/follow-redirects/",\
@@ -9591,6 +9679,18 @@ const RAW_RUNTIME_STATE =
           ["form-data", "npm:4.0.0"],\
           ["asynckit", "npm:0.4.0"],\
           ["combined-stream", "npm:1.0.8"],\
+          ["mime-types", "npm:2.1.35"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
+      ["npm:4.0.4", {\
+        "packageLocation": "./.yarn/cache/form-data-npm-4.0.4-10eb4ef9c3-373525a9a0.zip/node_modules/form-data/",\
+        "packageDependencies": [\
+          ["form-data", "npm:4.0.4"],\
+          ["asynckit", "npm:0.4.0"],\
+          ["combined-stream", "npm:1.0.8"],\
+          ["es-set-tostringtag", "npm:2.1.0"],\
+          ["hasown", "npm:2.0.2"],\
           ["mime-types", "npm:2.1.35"]\
         ],\
         "linkType": "HARD"\
@@ -14616,17 +14716,17 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["undici-types", [\
-      ["npm:5.26.5", {\
-        "packageLocation": "./.yarn/cache/undici-types-npm-5.26.5-de4f7c7bb9-bb673d7876.zip/node_modules/undici-types/",\
-        "packageDependencies": [\
-          ["undici-types", "npm:5.26.5"]\
-        ],\
-        "linkType": "HARD"\
-      }],\
       ["npm:6.20.0", {\
         "packageLocation": "./.yarn/cache/undici-types-npm-6.20.0-bd21e669af-68e659a988.zip/node_modules/undici-types/",\
         "packageDependencies": [\
           ["undici-types", "npm:6.20.0"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
+      ["npm:7.16.0", {\
+        "packageLocation": "./.yarn/cache/undici-types-npm-7.16.0-0e23b08124-3033e2f2b5.zip/node_modules/undici-types/",\
+        "packageDependencies": [\
+          ["undici-types", "npm:7.16.0"]\
         ],\
         "linkType": "HARD"\
       }]\

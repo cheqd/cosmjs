@@ -1,8 +1,16 @@
-import { bigint, boolean, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
+import { bigint, boolean, pgEnum, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
+
+export const emailVerificationStatusEnum = pgEnum("email_verification_status", [
+  "pending",
+  "verified",
+  "invalidated",
+  "expired",
+]);
 
 export const requests = pgTable("requests", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 50 }).notNull(),
+  first_name: varchar("first_name", { length: 50 }).notNull(),
+  last_name: varchar("last_name", { length: 50 }).notNull().default(""),
   company: varchar("company", { length: 150 }),
   email_address: varchar("email_address", { length: 254 }).notNull(),
   from_address: varchar("from_address", { length: 44 }).notNull(),
@@ -14,4 +22,13 @@ export const requests = pgTable("requests", {
   denom: varchar("denom", { length: 20 }).notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
   country: varchar("country", { length: 2 }).default("XX").notNull(),
+});
+
+export const emailVerifications = pgTable("email_verifications", {
+  id: serial("id").primaryKey(),
+  email_address: varchar("email_address", { length: 254 }).notNull(),
+  otp_code_hash: varchar("otp_code_hash", { length: 64 }).notNull(),
+  status: emailVerificationStatusEnum("status").default("pending").notNull(),
+  expires_at: timestamp("expires_at").notNull(),
+  created_at: timestamp("created_at").defaultNow().notNull(),
 });

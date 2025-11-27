@@ -11,10 +11,11 @@ export async function mailSync(): Promise<void> {
 export async function upsertSubscriber(
   listId: string,
   email: string,
-  name: string,
+  firstName: string,
+  lastName: string,
   requestId: number,
   company?: string | null,
   tags?: readonly string[],
 ): Promise<void> {
-  return mailchimpService.upsertSubscriber(listId, email, name, requestId, company, tags);
+  return mailchimpService.upsertSubscriber(listId, email, firstName, lastName, requestId, company, tags);
 }

@@ -13,10 +13,24 @@ export interface CreditRequestBodyData {
   readonly email: string;
   /** Whether the user opted in for marketing */
   readonly marketingOptin: boolean;
-  /** The name of the user */
-  readonly name: string;
+  /** The first name of the user */
+  readonly firstName: string;
+  /** The last name of the user */
+  readonly lastName: string;
   /** The company of the user */
   readonly company?: string;
+}
+
+export interface RequestOTPBodyData {
+  /** The email address */
+  readonly email: string;
+}
+
+export interface VerifyOTPBodyData {
+  /** The email address */
+  readonly email: string;
+  /** The OTP code */
+  readonly otp: string;
 }
 
 export class RequestParser {
@@ -25,7 +39,7 @@ export class RequestParser {
       throw new HttpError(400, "Request body must be a dictionary.");
     }
 
-    const { name, company, email, address, denom, amount, marketing_optin: marketingOptin } = body as any;
+    const { first_name: firstName, last_name: lastName, company, email, address, denom, amount, marketing_optin: marketingOptin } = body as any;
 
     if (typeof address !== "string") {
       throw new HttpError(400, "Property 'address' must be a string.");
@@ -59,8 +73,12 @@ export class RequestParser {
       throw new HttpError(400, "Property 'marketing_optin' must be a boolean.");
     }
 
-    if (typeof name !== "string") {
-      throw new HttpError(400, "Property 'name' must be a string.");
+    if (typeof firstName !== "string") {
+      throw new HttpError(400, "Property 'first_name' must be a string.");
+    }
+
+    if (typeof lastName !== "string") {
+      throw new HttpError(400, "Property 'last_name' must be a string.");
     }
 
     if (company && typeof company !== "string") {
@@ -73,8 +91,61 @@ export class RequestParser {
       amount,
       email,
       marketingOptin,
-      name,
+      firstName,
+      lastName,
       company,
     };
+  }
+
+  public static parseRequestOTPBody(body: unknown): RequestOTPBodyData {
+    if (!isNonNullObject(body) || Array.isArray(body)) {
+      throw new HttpError(400, "Request body must be a dictionary.");
+    }
+
+    const { email } = body as any;
+
+    if (typeof email !== "string") {
+      throw new HttpError(400, "Property 'email' must be a string.");
+    }
+
+    if (email.length === 0) {
+      throw new HttpError(400, "Property 'email' must not be empty.");
+    }
+
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      throw new HttpError(400, "Invalid email address format");
+    }
+
+    return { email };
+  }
+
+  public static parseVerifyOTPBody(body: unknown): VerifyOTPBodyData {
+    if (!isNonNullObject(body) || Array.isArray(body)) {
+      throw new HttpError(400, "Request body must be a dictionary.");
+    }
+
+    const { email, otp } = body as any;
+
+    if (typeof email !== "string") {
+      throw new HttpError(400, "Property 'email' must be a string.");
+    }
+
+    if (email.length === 0) {
+      throw new HttpError(400, "Property 'email' must not be empty.");
+    }
+
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      throw new HttpError(400, "Invalid email address format");
+    }
+
+    if (typeof otp !== "string") {
+      throw new HttpError(400, "Property 'otp' must be a string.");
+    }
+
+    if (otp.length !== 6 || !otp.match(/^\d{6}$/)) {
+      throw new HttpError(400, "Property 'otp' must be a 6-digit number.");
+    }
+
+    return { email, otp };
   }
 }

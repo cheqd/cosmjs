@@ -19,7 +19,8 @@ export class MailchimpService {
   async upsertSubscriber(
     listId: string,
     email: string,
-    name: string,
+    firstName: string,
+    lastName: string,
     requestId: number,
     company?: string | null,
     tags?: readonly string[]
@@ -32,7 +33,8 @@ export class MailchimpService {
         email_address: normalizedEmail,
         status_if_new: "subscribed",
         merge_fields: {
-          FNAME: name,
+          FNAME: firstName,
+          LNAME: lastName,
           ...(company && { COMPANY: company }),
         },
       });

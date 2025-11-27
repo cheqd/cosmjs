@@ -22,6 +22,7 @@ export async function start(args: readonly string[]): Promise<void> {
 
   // Faucet
   if (!constants.mnemonic) throw new Error("The FAUCET_MNEMONIC environment variable is not set");
+  if (!constants.apiKey) throw new Error("The FAUCET_API_KEY environment variable is not set");
   const logging = true;
   const pathBuilder = makePathBuilder(constants.pathPattern);
   const faucet = await Faucet.make(

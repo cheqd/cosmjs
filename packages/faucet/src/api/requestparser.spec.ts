@@ -9,7 +9,8 @@ describe("RequestParser", () => {
       amount: 1,
       email: "test@example.com",
       marketingOptin: false,
-      name: "John Doe",
+      firstName: "John",
+      lastName: "Doe",
       company: "F Corp",
     });
   });
@@ -79,7 +80,8 @@ describe("RequestParser", () => {
   describe("parseCreditBody", () => {
     it("works for valid body", () => {
       const body = {
-        name: "John Doe",
+        firstName: "John",
+        lastName: "Doe",
         company: "F Corp",
         address: "abc",
         denom: "utkn",

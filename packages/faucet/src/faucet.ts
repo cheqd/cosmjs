@@ -94,7 +94,8 @@ export class Faucet {
   /** Use one of the distributor accounts to send tokens to user */
   public async credit(
     email: string,
-    name: string,
+    firstName: string,
+    lastName: string,
     toAddress: string,
     denom: string,
     amount: number,
@@ -121,7 +122,8 @@ export class Faucet {
 
       const faucetRequest: FaucetRequest = {
         email_address: email,
-        name: name,
+        first_name: firstName,
+        last_name: lastName,
         from_address: sender,
         to_address: toAddress,
         hash: result,
@@ -142,14 +144,14 @@ export class Faucet {
           const productListId = process.env.MAILCHIMP_PRODUCT_LIST_ID;
           if (productListId) {
             const tags: string[] = ["Testnet-Faucet"];
-            await mailchimpService.upsertSubscriber(productListId, email, name, requestId, company, tags);
+            await mailchimpService.upsertSubscriber(productListId, email, firstName, lastName, requestId, company, tags);
           }
 
           // If user opted into newsletter, add to newsletter audience (no tags)
           if (marketingOptin) {
             const newsletterListId = process.env.MAILCHIMP_NEWSLETTER_LIST_ID;
             if (newsletterListId) {
-              await mailchimpService.upsertSubscriber(newsletterListId, email, name, requestId, company);
+              await mailchimpService.upsertSubscriber(newsletterListId, email, firstName, lastName, requestId, company);
             }
           }
         } catch (error) {
@@ -168,7 +170,8 @@ export class Faucet {
             },
             body: JSON.stringify({
               email: email,
-              name: name,
+              firstName: firstName,
+              lastName: lastName,
               company: company,
               country: country,
               address: toAddress,

@@ -15,6 +15,8 @@ export const mnemonic: string | undefined = process.env.FAUCET_MNEMONIC;
 export const addressPrefix = process.env.FAUCET_ADDRESS_PREFIX || "cosmos";
 export const pathPattern = process.env.FAUCET_PATH_PATTERN || "m/44'/118'/0'/0/a";
 export const zapierWebhookUrl = process.env.ZAPIER_WEBHOOK_URL;
+export const apiKey = process.env.FAUCET_API_KEY || "default-api-key";
+export const otpSecret = process.env.OTP_SECRET || "default-otp-secret";
 export const tokenConfig: TokenConfiguration = {
   bankTokens: parseBankTokens(process.env.FAUCET_TOKENS || "ucosm, ustake"),
 };

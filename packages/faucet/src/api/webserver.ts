@@ -275,33 +275,41 @@ export class Webserver {
             // Check if email is verified for regular requests
             const isEmailVerified = await database.isEmailVerified(email);
             if (!isEmailVerified) {
+              console.error(`Credit request rejected: email not verified: email=${email}`);
               throw new HttpError(403, "Email address must be verified before requesting tokens. Please verify your email first.");
             }
           }
 
           if (!isValidAddress(address, constants.addressPrefix)) {
+            console.error(`Credit request rejected: invalid address: address=${address}`);
             throw new HttpError(400, "Address is not in the expected format for this chain.");
           }
 
-          const entry = this.addressCounter.get(address);
-          if (entry !== undefined) {
-            const cooldownTimeMs = constants.cooldownTime * 1000;
-            if (entry.getTime() + cooldownTimeMs > Date.now()) {
-              throw new HttpError(
-                429,
-                `Too many requests for the same address. Please wait ${constants.cooldownTime} seconds.`,
-              );
+          if (!isCheqdStudioRequest) {
+            const entry = this.addressCounter.get(address);
+            if (entry !== undefined) {
+              const cooldownTimeMs = constants.cooldownTime * 1000;
+              if (entry.getTime() + cooldownTimeMs > Date.now()) {
+                console.error(`Credit request rejected: cooldown active: address=${address}`);
+                throw new HttpError(
+                  429,
+                  `Too many requests for the same address. Please wait ${constants.cooldownTime} seconds.`,
+                );
+              }
             }
           }
 
           const availableTokens = await faucet.availableTokens();
           const matchingDenom = availableTokens.find((availableDenom) => availableDenom === denom);
           if (matchingDenom === undefined) {
+            console.error(`Credit request rejected: token not available: denom=${denom} available=${availableTokens}`);
             throw new HttpError(422, `Token is not available. Available tokens are: ${availableTokens}`);
           }
 
           try {
-            this.addressCounter.set(address, new Date());
+            if (!isCheqdStudioRequest) {
+              this.addressCounter.set(address, new Date());
+            }
             await faucet.credit(email, firstName, lastName, address, denom, amount, marketingOptin, country, company);
             context.response.body = { status: "ok" };
           } catch (error) {

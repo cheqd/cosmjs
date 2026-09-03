@@ -250,9 +250,21 @@ export class Webserver {
           }
 
           const requestBody = (context.request as any).body;
-          const creditBody = RequestParser.parseCreditBody(requestBody);
+
+          let creditBody;
+          try {
+            creditBody = RequestParser.parseCreditBody(requestBody);
+          } catch (error) {
+            console.error("Failed to parse credit request body:", requestBody, error);
+            throw error;
+          }
+
           const { address, denom, amount, email, marketingOptin, firstName, lastName, company } = creditBody;
           const country = this.getCountryFromRequest(context);
+
+          console.info(
+            `Credit request received: email=${email} address=${address} denom=${denom} amount=${amount} company=${company ?? ""}`,
+          );
 
           // Auto-verify email for cheqd Studio requests, otherwise require email verification
           const isCheqdStudioRequest = company === "Requested via cheqd Studio";
